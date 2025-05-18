@@ -8,6 +8,7 @@
     "verify": "ts-node deployment/verify-contracts.ts",
     "update-oracle": "ts-node oracle/update-prices.ts",
     "process-funding": "ts-node management/process-funding.ts",
+    "sync-github-secrets": "ts-node sync-github-secrets.ts",
     "dev": "nodemon --exec ts-node index.ts"
   },
   "dependencies": {

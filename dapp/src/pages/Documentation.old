@@ -2,7 +2,6 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Whitepaper from './docs/Whitepaper'
 import TechnicalGuide from './docs/TechnicalGuide'
-import CloudflareSetup from './docs/CloudflareSetup'
 
 // Define the table of contents for each doc
 const docTableOfContents = {
@@ -59,19 +58,6 @@ const docTableOfContents = {
     { id: 'scheduled-tasks-architecture', title: 'Scheduled Tasks Architecture', level: 2 },
     { id: 'development-best-practices', title: 'Development Best Practices', level: 2 },
     { id: 'implementation-guidance', title: 'Implementation Guidance for Claude Code Agent', level: 2 },
-  ],
-  cloudflare: [
-    { id: 'setting-up-cloudflare-pages-for-living-futures', title: 'Setting Up Cloudflare Pages', level: 1 },
-    { id: 'prerequisites', title: 'Prerequisites', level: 2 },
-    { id: 'steps', title: 'Steps', level: 2 },
-    { id: 'get-your-cloudflare-account-id', title: 'Get Your Cloudflare Account ID', level: 3 },
-    { id: 'create-an-api-token', title: 'Create an API Token', level: 3 },
-    { id: 'create-the-pages-project', title: 'Create the Pages Project', level: 3 },
-    { id: 'option-a-via-cloudflare-dashboard', title: 'Option A: Via Cloudflare Dashboard', level: 4 },
-    { id: 'option-b-via-wrangler-cli', title: 'Option B: Via Wrangler CLI', level: 4 },
-    { id: 'sync-github-secrets', title: 'Sync GitHub Secrets', level: 3 },
-    { id: 'verify-deployment', title: 'Verify Deployment', level: 3 },
-    { id: 'troubleshooting', title: 'Troubleshooting', level: 2 },
   ]
 }
 
@@ -82,11 +68,9 @@ export default function Documentation() {
   // Determine which doc we're viewing
   const isWhitepaper = location.pathname.includes('whitepaper') || location.pathname === '/docs' || location.pathname === '/docs/'
   const isTechnical = location.pathname.includes('technical')
-  const isCloudflare = location.pathname.includes('cloudflare')
   
   const currentTOC = isWhitepaper ? docTableOfContents.whitepaper : 
                     isTechnical ? docTableOfContents.technical : 
-                    isCloudflare ? docTableOfContents.cloudflare :
                     docTableOfContents.whitepaper
 
   const isActive = (path: string) => {
@@ -156,18 +140,6 @@ export default function Documentation() {
                   Technical Guide
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/docs/cloudflare" 
-                  className={`block px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                    isActive('/docs/cloudflare') 
-                      ? 'bg-primary text-white shadow-retro' 
-                      : 'text-gray-700 hover:bg-field-green hover:text-primary'
-                  }`}
-                >
-                  Cloudflare Setup
-                </Link>
-              </li>
             </ul>
 
             {/* Table of Contents */}
@@ -199,7 +171,6 @@ export default function Documentation() {
             <Route path="/" element={<Whitepaper />} />
             <Route path="whitepaper" element={<Whitepaper />} />
             <Route path="technical" element={<TechnicalGuide />} />
-            <Route path="cloudflare" element={<CloudflareSetup />} />
           </Routes>
         </main>
       </div>
