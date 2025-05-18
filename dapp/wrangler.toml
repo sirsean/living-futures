@@ -1,0 +1,33 @@
+# Cloudflare Pages configuration for Living Futures
+
+name = "living-futures"
+compatibility_date = "2025-01-01"
+
+# Build configuration
+[build]
+command = "npm run build"
+build_output_directory = "dist"
+
+# Environment variables (non-sensitive)
+[vars]
+VITE_CHAIN_ID = "8453"  # Base mainnet
+VITE_NETWORK_NAME = "Base"
+VITE_RPC_URL = "https://mainnet.base.org"
+
+# Pages Functions configuration
+[site]
+bucket = "./dist"
+
+# Deployment environments
+[[deployments]]
+name = "production"
+[[deployments.vars]]
+VITE_APP_ENV = "production"
+
+[[deployments]]
+name = "staging"
+[[deployments.vars]]
+VITE_APP_ENV = "staging"
+VITE_CHAIN_ID = "84532"  # Base Sepolia
+VITE_NETWORK_NAME = "Base Sepolia"
+VITE_RPC_URL = "https://sepolia.base.org"

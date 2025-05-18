@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "esnext",
+    "lib": ["es2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types"],
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./scripts"
+  },
+  "include": ["scripts/**/*"],
+  "exclude": ["node_modules", "dist", "contracts", "dapp"]
+}

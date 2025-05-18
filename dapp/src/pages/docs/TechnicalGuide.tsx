@@ -1,0 +1,399 @@
+import { useEffect } from 'react'
+
+export default function TechnicalGuide() {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  return (
+    <article className="prose prose-lg max-w-none">
+      <h1>Baseball Living Futures - Technical Implementation Guide</h1>
+      
+      <h2 id="system-architecture-overview">System Architecture Overview</h2>
+      
+      <p>
+        Baseball Living Futures is a decentralized financial platform that allows users to trade season-long derivative contracts on baseball team performance. The system consists of three main components:
+      </p>
+      
+      <ol>
+        <li><strong>Smart Contracts</strong> (Base Blockchain)</li>
+        <li><strong>Frontend Application</strong> (Cloudflare Pages)</li>
+        <li><strong>Backend Services</strong> (Cloudflare Workers)</li>
+      </ol>
+      
+      <p>
+        This guide provides a high-level architecture overview and implementation roadmap for a Claude Code agent to build the complete system.
+      </p>
+      
+      <h2 id="core-components-and-design-principles">Core Components and Design Principles</h2>
+      
+      <h3 id="smart-contract-architecture">Smart Contract Architecture</h3>
+      
+      <p>The system is built around these core smart contract modules:</p>
+      
+      <ol>
+        <li><strong>Virtual AMM System</strong>
+          <ul>
+            <li>Sigmoid-based price discovery mechanism</li>
+            <li>Bounded output range (0-1000) representing win percentages</li>
+            <li>Position imbalance tracking without token swapping</li>
+          </ul>
+        </li>
+        
+        <li><strong>Position Management</strong>
+          <ul>
+            <li>Long/short position opening and closing</li>
+            <li>Leverage management and margin requirements</li>
+            <li>Funding rate calculations and payments</li>
+          </ul>
+        </li>
+        
+        <li><strong>Liquidity Management</strong>
+          <ul>
+            <li>Team-specific liquidity provision</li>
+            <li>Fee collection and distribution</li>
+            <li>LP share tokenization and value tracking</li>
+          </ul>
+        </li>
+        
+        <li><strong>Risk Management</strong>
+          <ul>
+            <li>Insurance fund with staking mechanism</li>
+            <li>Liquidation engine for underwater positions</li>
+            <li>Circuit breakers and safety mechanisms</li>
+          </ul>
+        </li>
+        
+        <li><strong>Oracle System</strong>
+          <ul>
+            <li>Win percentage data feeds</li>
+            <li>Game result recording</li>
+            <li>End-of-season settlement</li>
+          </ul>
+        </li>
+        
+        <li><strong>Shared Liquidity Distribution</strong>
+          <ul>
+            <li>Cross-team liquidity allocation</li>
+            <li>Equal distribution with dynamic rebalancing</li>
+            <li>Excess profit handling</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h3 id="frontend-application">Frontend Application</h3>
+      
+      <p>The frontend will be a React application with these main features:</p>
+      
+      <ol>
+        <li><strong>Trading Interface</strong>
+          <ul>
+            <li>Team selection and position management</li>
+            <li>Price charts and win percentage data</li>
+            <li>Funding rate information</li>
+            <li>Position monitoring</li>
+          </ul>
+        </li>
+        
+        <li><strong>Liquidity Provision</strong>
+          <ul>
+            <li>Team-specific LP interface</li>
+            <li>Shared liquidity pool interface</li>
+            <li>APY tracking and fee visualization</li>
+            <li>LP position management</li>
+          </ul>
+        </li>
+        
+        <li><strong>Insurance Staking</strong>
+          <ul>
+            <li>Staking interface with APY information</li>
+            <li>Reward tracking and claims</li>
+            <li>Risk disclosure and educational content</li>
+          </ul>
+        </li>
+        
+        <li><strong>Portfolio Dashboard</strong>
+          <ul>
+            <li>Unified view of all user positions</li>
+            <li>PnL tracking and history</li>
+            <li>Risk metrics</li>
+          </ul>
+        </li>
+        
+        <li><strong>Analytics</strong>
+          <ul>
+            <li>Market-wide statistics</li>
+            <li>Team performance data</li>
+            <li>Liquidity distribution visualization</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h3 id="backend-services">Backend Services</h3>
+      
+      <p>Backend services handle data processing, scheduled tasks, and API endpoints:</p>
+      
+      <ol>
+        <li><strong>API Endpoints</strong>
+          <ul>
+            <li>Historical price and volume data</li>
+            <li>Team statistics and correlations</li>
+            <li>User analytics and aggregated data</li>
+          </ul>
+        </li>
+        
+        <li><strong>Scheduled Tasks</strong>
+          <ul>
+            <li>Oracle update coordination</li>
+            <li>Daily funding payments processing</li>
+            <li>Liquidation monitoring</li>
+            <li>Season transition handling</li>
+          </ul>
+        </li>
+        
+        <li><strong>Data Aggregation</strong>
+          <ul>
+            <li>Trade history collection</li>
+            <li>APY calculations</li>
+            <li>Protocol metrics</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h2 id="implementation-roadmap">Implementation Roadmap</h2>
+      
+      <p>The system will be built in phases with clear milestones:</p>
+      
+      <h3>Phase 1: Core Smart Contract Development (6-8 weeks)</h3>
+      
+      <ol>
+        <li><strong>Framework Setup</strong> (Week 1)
+          <ul>
+            <li>Repository initialization</li>
+            <li>Development environment configuration</li>
+            <li>Testing framework setup</li>
+          </ul>
+        </li>
+        
+        <li><strong>Virtual AMM Implementation</strong> (Weeks 1-2)
+          <ul>
+            <li>Implement sigmoid-based pricing algorithm</li>
+            <li>Build position imbalance tracking</li>
+            <li>Create funding rate calculations</li>
+          </ul>
+        </li>
+        
+        {/* Continue with all phases... */}
+      </ol>
+      
+      <h2 id="technical-specifications">Technical Specifications</h2>
+      
+      <h3>Blockchain</h3>
+      
+      <ul>
+        <li><strong>Network:</strong> Base (Ethereum L2)</li>
+        <li><strong>Language:</strong> Solidity v0.8.x</li>
+        <li><strong>Testing:</strong> Hardhat, Foundry</li>
+        <li><strong>Deployment:</strong> Hardhat, Ethers.js</li>
+      </ul>
+      
+      <h3>Frontend</h3>
+      
+      <ul>
+        <li><strong>Framework:</strong> React 18+</li>
+        <li><strong>State Management:</strong> React Query, Context API</li>
+        <li><strong>Styling:</strong> Tailwind CSS</li>
+        <li><strong>Web3 Integration:</strong> wagmi, ethers.js</li>
+        <li><strong>Hosting:</strong> Cloudflare Pages</li>
+      </ul>
+      
+      <h3>Backend</h3>
+      
+      <ul>
+        <li><strong>Services:</strong> Cloudflare Workers</li>
+        <li><strong>Scheduled Tasks:</strong> Cloudflare Workers with Cron Triggers</li>
+        <li><strong>Data Storage:</strong> KV Store, D1 (Cloudflare SQLite)</li>
+        <li><strong>Monitoring:</strong> Cloudflare Analytics</li>
+      </ul>
+      
+      <h2 id="smart-contract-interaction-flow">Smart Contract Interaction Flow</h2>
+      
+      <ol>
+        <li><strong>Trading Flow</strong>
+          <ul>
+            <li>User connects wallet</li>
+            <li>Selects team and position type (long/short)</li>
+            <li>Enters size and margin</li>
+            <li>Approves token spend</li>
+            <li>Submits transaction</li>
+            <li>Position is opened with price impact calculated</li>
+            <li>Daily funding applies based on price vs. win%</li>
+            <li>User can close or be liquidated if underwater</li>
+          </ul>
+        </li>
+        
+        <li><strong>Liquidity Provision Flow</strong>
+          <ul>
+            <li>User selects team-specific or shared liquidity</li>
+            <li>Deposits collateral</li>
+            <li>Receives LP shares</li>
+            <li>Collateral is distributed to teams (if shared)</li>
+            <li>Fees accrue based on trading activity</li>
+            <li>LPs can withdraw with accrued rewards</li>
+          </ul>
+        </li>
+        
+        <li><strong>Insurance Staking Flow</strong>
+          <ul>
+            <li>User deposits collateral to insurance fund</li>
+            <li>Receives shares of fund</li>
+            <li>Earns from trading fees and liquidations</li>
+            <li>Rate varies based on protocol activity (0% in off-season)</li>
+            <li>Can unstake and withdraw when needed</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h2 id="scheduled-tasks-architecture">Scheduled Tasks Architecture</h2>
+      
+      <p>These critical operations will run as scheduled Cloudflare Workers:</p>
+      
+      <ol>
+        <li><strong>Oracle Updates</strong> (After each game)
+          <ul>
+            <li>Fetch game results from reliable data sources</li>
+            <li>Update on-chain win percentages</li>
+            <li>Record game outcomes for historical data</li>
+          </ul>
+        </li>
+        
+        <li><strong>Funding Payments</strong> (Daily at 2:00 AM ET)
+          <ul>
+            <li>Calculate funding based on price vs. win%</li>
+            <li>Process payments between longs and shorts</li>
+            <li>Update user positions</li>
+          </ul>
+        </li>
+        
+        <li><strong>Liquidation Monitoring</strong> (Every 5 minutes)
+          <ul>
+            <li>Check all positions against maintenance margin</li>
+            <li>Flag positions for liquidation</li>
+            <li>Execute liquidations for underwater positions</li>
+          </ul>
+        </li>
+        
+        <li><strong>LP Reward Distribution</strong> (Daily)
+          <ul>
+            <li>Calculate fees earned by LPs</li>
+            <li>Update accrued rewards</li>
+            <li>Process distribution to shared LP</li>
+          </ul>
+        </li>
+        
+        <li><strong>Excess Profit Distribution</strong> (Weekly)
+          <ul>
+            <li>Calculate system excess profit</li>
+            <li>Allocate to shared LP as specified</li>
+            <li>Update profit metrics</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h2 id="development-best-practices">Development Best Practices</h2>
+      
+      <ol>
+        <li><strong>Smart Contract Security</strong>
+          <ul>
+            <li>Use established patterns and libraries (OpenZeppelin)</li>
+            <li>Comprehensive test coverage (&gt;95%)</li>
+            <li>Formal verification for critical functions</li>
+            <li>Multiple audit rounds</li>
+          </ul>
+        </li>
+        
+        <li><strong>Frontend Performance</strong>
+          <ul>
+            <li>Optimize bundle size</li>
+            <li>Lazy loading for routes</li>
+            <li>Memoization for expensive calculations</li>
+            <li>Efficient rendering patterns</li>
+          </ul>
+        </li>
+        
+        <li><strong>Backend Reliability</strong>
+          <ul>
+            <li>Error handling and retry logic</li>
+            <li>Graceful degradation</li>
+            <li>Comprehensive logging</li>
+            <li>Fallback mechanisms</li>
+          </ul>
+        </li>
+        
+        <li><strong>DevOps</strong>
+          <ul>
+            <li>CI/CD pipeline with GitHub Actions</li>
+            <li>Environment separation (dev/staging/prod)</li>
+            <li>Infrastructure as code</li>
+            <li>Automated testing on PRs</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h2 id="implementation-guidance">Implementation Guidance for Claude Code Agent</h2>
+      
+      <p>When implementing this system, follow these guidelines:</p>
+      
+      <ol>
+        <li><strong>Start with Core Contracts</strong>
+          <ul>
+            <li>Begin with the Virtual AMM - this is the foundation</li>
+            <li>Build position management next</li>
+            <li>Add liquidity management</li>
+            <li>Implement risk systems last</li>
+          </ul>
+        </li>
+        
+        <li><strong>Modular Development</strong>
+          <ul>
+            <li>Each contract should have a single responsibility</li>
+            <li>Use inheritance and composition carefully</li>
+            <li>Create interfaces for cross-contract communication</li>
+            <li>Favor libraries for reusable code</li>
+          </ul>
+        </li>
+        
+        <li><strong>Testing Strategy</strong>
+          <ul>
+            <li>Unit tests for each function</li>
+            <li>Integration tests for contract interactions</li>
+            <li>Scenario tests for complex flows</li>
+            <li>Fuzz testing for edge cases</li>
+          </ul>
+        </li>
+        
+        <li><strong>Frontend Architecture</strong>
+          <ul>
+            <li>Component-based design</li>
+            <li>Custom hooks for contract interactions</li>
+            <li>Centralized state management</li>
+            <li>Responsive design patterns</li>
+          </ul>
+        </li>
+        
+        <li><strong>Worker Implementation</strong>
+          <ul>
+            <li>Separate worker for each scheduled task</li>
+            <li>Shared utility libraries</li>
+            <li>Comprehensive error handling</li>
+            <li>Monitoring and logging</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <p>
+        By following this architecture and roadmap, the Baseball Living Futures platform can be built as a robust, secure, and user-friendly system that delivers the innovative features outlined in the whitepaper.
+      </p>
+    </article>
+  )
+}

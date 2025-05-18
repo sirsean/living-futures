@@ -1,0 +1,27 @@
+{
+  "name": "living-futures-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Management scripts for Living Futures platform",
+  "scripts": {
+    "deploy": "ts-node deployment/deploy-all.ts",
+    "verify": "ts-node deployment/verify-contracts.ts",
+    "update-oracle": "ts-node oracle/update-prices.ts",
+    "process-funding": "ts-node management/process-funding.ts",
+    "dev": "nodemon --exec ts-node index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ethers": "^6.0.0",
+    "commander": "^11.0.0",
+    "cron": "^3.0.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/cron": "^2.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0",
+    "nodemon": "^3.0.0"
+  }
+}
