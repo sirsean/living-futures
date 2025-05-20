@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { OracleSyncService } from './services/OracleSyncService.js';
+import { getDefaultSyncDate, DEFAULT_DATE_CUTOFF_HOUR_ET } from './utils/dateUtils.js';
 
 const program = new Command();
 
@@ -9,48 +10,20 @@ program
   .description('Living Futures Baseball Oracle CLI')
   .version('1.0.0');
 
-/**
- * Gets today's date in Eastern Time, properly handling DST
- * @returns Date object for today in ET
- */
-function getTodayInET(): Date {
-  // Create a date object for the current UTC time
-  const now = new Date();
-  
-  // Format a date string in ET using Intl.DateTimeFormat
-  // This properly handles DST transitions automatically
-  const etDateFormatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York', // Eastern Time zone
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  
-  // Get the date parts
-  const dateParts = etDateFormatter.formatToParts(now);
-  
-  // Extract the individual components
-  const year = parseInt(dateParts.find(part => part.type === 'year')?.value || '0');
-  const month = parseInt(dateParts.find(part => part.type === 'month')?.value || '0') - 1; // Months are 0-indexed in Date
-  const day = parseInt(dateParts.find(part => part.type === 'day')?.value || '0');
-  
-  // Create a new date using ET date (but with local time)
-  // We only care about the date part (YYYY-MM-DD), not the time
-  return new Date(year, month, day);
-}
 
 program
   .command('sync')
   .description('Sync baseball game results to the Oracle contract')
-  .option('-d, --date <date>', 'Date to sync in YYYY-MM-DD format (default: today in Eastern Time)')
+  .option('-d, --date <date>', `Date to sync in YYYY-MM-DD format (default: intelligent - today after ${DEFAULT_DATE_CUTOFF_HOUR_ET}AM ET, yesterday before ${DEFAULT_DATE_CUTOFF_HOUR_ET}AM ET)`)
   .option('-v, --verbose', 'Enable verbose output')
   .action(async (options) => {
     try {
       const syncService = new OracleSyncService();
       
-      // Get the date to use (today in ET by default)
+      // Get the date to use (time-aware default)
       let targetDate: Date;
       let isDefaultDate = false;
+      let dateExplanation = '';
       
       if (options.date) {
         // User provided a date - parse it
@@ -59,17 +32,18 @@ program
           throw new Error(`Invalid date format: ${options.date}. Please use YYYY-MM-DD format.`);
         }
       } else {
-        // Use today in Eastern Time
-        targetDate = getTodayInET();
+        // Use time-aware default date selection
+        const defaultResult = getDefaultSyncDate();
+        targetDate = defaultResult.date;
         isDefaultDate = true;
+        dateExplanation = ` (${defaultResult.explanation})`;
       }
       
       // Format the date for display
       const formattedDate = targetDate.toISOString().split('T')[0];
       
       // Display the date that's being used
-      const defaultDateMsg = isDefaultDate ? ' (today in Eastern Time/MLB home timezone)' : '';
-      console.log(`Syncing baseball games for date: ${formattedDate}${defaultDateMsg}`);
+      console.log(`Syncing baseball games for date: ${formattedDate}${dateExplanation}`);
       
       // Get games for the target date
       const games = await syncService.prepareGamesForDate(targetDate);
