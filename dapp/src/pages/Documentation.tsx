@@ -4,6 +4,7 @@ import Whitepaper from './docs/Whitepaper'
 import TechnicalGuide from './docs/TechnicalGuide'
 import CloudflareSetup from './docs/CloudflareSetup'
 import OracleDesign from './docs/OracleDesign'
+import OracleAPI from './docs/OracleAPI'
 
 // Define the table of contents for each doc
 const docTableOfContents = {
@@ -101,6 +102,16 @@ const docTableOfContents = {
     { id: 'emergency-procedures', title: '10.3 Emergency Procedures', level: 3 },
     { id: 'future-enhancements', title: '11. Future Enhancements', level: 2 },
     { id: 'conclusion', title: '12. Conclusion', level: 2 }
+  ],
+  oracleAPI: [
+    { id: 'overview', title: '1. Overview', level: 2 },
+    { id: 'data-structures', title: '2. Data Structures', level: 2 },
+    { id: 'read-functions', title: '3. Read Functions', level: 2 },
+    { id: 'write-functions', title: '4. Write Functions', level: 2 },
+    { id: 'events', title: '5. Events', level: 2 },
+    { id: 'integration-patterns', title: '6. Integration Patterns', level: 2 },
+    { id: 'code-examples', title: '7. Code Examples', level: 2 },
+    { id: 'error-handling', title: '8. Error Handling', level: 2 }
   ]
 }
 
@@ -112,12 +123,14 @@ export default function Documentation() {
   const isWhitepaper = location.pathname.includes('whitepaper') || location.pathname === '/docs' || location.pathname === '/docs/'
   const isTechnical = location.pathname.includes('technical')
   const isCloudflare = location.pathname.includes('cloudflare')
-  const isOracle = location.pathname.includes('oracle')
+  const isOracle = location.pathname.includes('oracle') && !location.pathname.includes('oracle-api')
+  const isOracleAPI = location.pathname.includes('oracle-api')
   
   const currentTOC = isWhitepaper ? docTableOfContents.whitepaper : 
                     isTechnical ? docTableOfContents.technical : 
                     isCloudflare ? docTableOfContents.cloudflare :
                     isOracle ? docTableOfContents.oracle :
+                    isOracleAPI ? docTableOfContents.oracleAPI :
                     docTableOfContents.whitepaper
 
   const isActive = (path: string) => {
@@ -211,6 +224,18 @@ export default function Documentation() {
                   Oracle Design
                 </Link>
               </li>
+              <li>
+                <Link 
+                  to="/docs/oracle-api" 
+                  className={`block px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    isActive('/docs/oracle-api') 
+                      ? 'bg-primary text-white shadow-retro' 
+                      : 'text-gray-700 hover:bg-field-green hover:text-primary'
+                  }`}
+                >
+                  Oracle API Reference
+                </Link>
+              </li>
             </ul>
 
             {/* Table of Contents */}
@@ -244,6 +269,7 @@ export default function Documentation() {
             <Route path="technical" element={<TechnicalGuide />} />
             <Route path="cloudflare" element={<CloudflareSetup />} />
             <Route path="oracle" element={<OracleDesign />} />
+            <Route path="oracle-api" element={<OracleAPI />} />
           </Routes>
         </main>
       </div>
