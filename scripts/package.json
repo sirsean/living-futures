@@ -3,26 +3,38 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Management scripts for Living Futures platform",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
-    "deploy": "ts-node deployment/deploy-all.ts",
-    "verify": "ts-node deployment/verify-contracts.ts",
-    "update-oracle": "ts-node oracle/update-prices.ts",
-    "process-funding": "ts-node management/process-funding.ts",
-    "sync-github-secrets": "ts-node sync-github-secrets.ts",
-    "dev": "nodemon --exec ts-node index.ts"
+    "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --coverage",
+    "test:oracle": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js oracle",
+    "test:oracle:watch": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js oracle --watch",
+    "build": "tsc -p tsconfig.json",
+    "process-funding": "ts-node --esm management/process-funding.ts",
+    "sync-github-secrets": "ts-node --esm sync-github-secrets.ts",
+    "oracle:sync": "NODE_OPTIONS='--loader ts-node/esm' node oracle/index.ts sync",
+    "oracle:date": "NODE_OPTIONS='--loader ts-node/esm' node oracle/index.ts sync -d",
+    "dev": "nodemon --exec \"NODE_OPTIONS='--loader ts-node/esm' node oracle/index.ts sync\""
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "ethers": "^6.0.0",
+    "axios": "^1.6.0",
     "commander": "^11.0.0",
     "cron": "^3.0.0",
-    "axios": "^1.6.0"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@jest/globals": "^29.7.0",
     "@types/cron": "^2.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.0",
+    "ts-jest": "^29.3.4",
     "ts-node": "^10.9.0",
-    "typescript": "^5.0.0",
-    "nodemon": "^3.0.0"
+    "typescript": "^5.0.0"
   }
 }

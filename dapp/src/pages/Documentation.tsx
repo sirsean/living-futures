@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Whitepaper from './docs/Whitepaper'
 import TechnicalGuide from './docs/TechnicalGuide'
 import CloudflareSetup from './docs/CloudflareSetup'
+import OracleDesign from './docs/OracleDesign'
 
 // Define the table of contents for each doc
 const docTableOfContents = {
@@ -51,6 +52,7 @@ const docTableOfContents = {
     { id: 'system-architecture-overview', title: 'System Architecture Overview', level: 2 },
     { id: 'core-components-and-design-principles', title: 'Core Components and Design Principles', level: 2 },
     { id: 'smart-contract-architecture', title: 'Smart Contract Architecture', level: 3 },
+    { id: 'oracle-system-architecture', title: 'Oracle System Architecture', level: 3 },
     { id: 'frontend-application', title: 'Frontend Application', level: 3 },
     { id: 'backend-services', title: 'Backend Services', level: 3 },
     { id: 'implementation-roadmap', title: 'Implementation Roadmap', level: 2 },
@@ -72,6 +74,33 @@ const docTableOfContents = {
     { id: 'sync-github-secrets', title: 'Sync GitHub Secrets', level: 3 },
     { id: 'verify-deployment', title: 'Verify Deployment', level: 3 },
     { id: 'troubleshooting', title: 'Troubleshooting', level: 2 },
+  ],
+  oracle: [
+    { id: 'introduction', title: '1. Introduction', level: 2 },
+    { id: 'system-purpose', title: '1.1 System Purpose', level: 3 },
+    { id: 'design-principles', title: '1.2 Design Principles', level: 3 },
+    { id: 'data-requirements', title: '2. Data Requirements', level: 2 },
+    { id: 'data-sources-evaluation', title: '2.1 Data Sources Evaluation', level: 3 },
+    { id: 'required-data-points', title: '2.2 Required Data Points', level: 3 },
+    { id: 'system-architecture', title: '3. System Architecture', level: 2 },
+    { id: 'oracle-contract-architecture', title: '3.1 Oracle Contract Architecture', level: 3 },
+    { id: 'score-sync-service-architecture', title: '3.2 Score Sync Service Architecture', level: 3 },
+    { id: 'implementation-plan', title: '7. Implementation Plan', level: 2 },
+    { id: 'security-considerations', title: '8. Security Considerations', level: 2 },
+    { id: 'data-integrity', title: '8.1 Data Integrity', level: 3 },
+    { id: 'access-control', title: '8.2 Access Control', level: 3 },
+    { id: 'economic-security', title: '8.3 Economic Security', level: 3 },
+    { id: 'operational-security', title: '8.4 Operational Security', level: 3 },
+    { id: 'integration-with-protocol', title: '9. Integration with Protocol', level: 2 },
+    { id: 'win-percentage-consumption', title: '9.1 Win Percentage Consumption', level: 3 },
+    { id: 'settlement-process', title: '9.2 Settlement Process', level: 3 },
+    { id: 'frontend-integration', title: '9.3 Frontend Integration', level: 3 },
+    { id: 'operational-procedures', title: '10. Operational Procedures', level: 2 },
+    { id: 'routine-operations', title: '10.1 Routine Operations', level: 3 },
+    { id: 'error-correction-process', title: '10.2 Error Correction Process', level: 3 },
+    { id: 'emergency-procedures', title: '10.3 Emergency Procedures', level: 3 },
+    { id: 'future-enhancements', title: '11. Future Enhancements', level: 2 },
+    { id: 'conclusion', title: '12. Conclusion', level: 2 }
   ]
 }
 
@@ -83,10 +112,12 @@ export default function Documentation() {
   const isWhitepaper = location.pathname.includes('whitepaper') || location.pathname === '/docs' || location.pathname === '/docs/'
   const isTechnical = location.pathname.includes('technical')
   const isCloudflare = location.pathname.includes('cloudflare')
+  const isOracle = location.pathname.includes('oracle')
   
   const currentTOC = isWhitepaper ? docTableOfContents.whitepaper : 
                     isTechnical ? docTableOfContents.technical : 
                     isCloudflare ? docTableOfContents.cloudflare :
+                    isOracle ? docTableOfContents.oracle :
                     docTableOfContents.whitepaper
 
   const isActive = (path: string) => {
@@ -168,6 +199,18 @@ export default function Documentation() {
                   Cloudflare Setup
                 </Link>
               </li>
+              <li>
+                <Link 
+                  to="/docs/oracle" 
+                  className={`block px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    isActive('/docs/oracle') 
+                      ? 'bg-primary text-white shadow-retro' 
+                      : 'text-gray-700 hover:bg-field-green hover:text-primary'
+                  }`}
+                >
+                  Oracle Design
+                </Link>
+              </li>
             </ul>
 
             {/* Table of Contents */}
@@ -200,6 +243,7 @@ export default function Documentation() {
             <Route path="whitepaper" element={<Whitepaper />} />
             <Route path="technical" element={<TechnicalGuide />} />
             <Route path="cloudflare" element={<CloudflareSetup />} />
+            <Route path="oracle" element={<OracleDesign />} />
           </Routes>
         </main>
       </div>

@@ -6,7 +6,24 @@
       "Bash(npm install)",
       "Bash(grep:*)",
       "Bash(mv:*)",
-      "Bash(nvm use:*)"
+      "Bash(nvm use:*)",
+      "Bash(ls:*)",
+      "Bash(source:*)",
+      "Bash(npx hardhat compile:*)",
+      "Bash(npm run test:contracts:*)",
+      "Bash(npx hardhat test:*)",
+      "Bash(export:*)",
+      "Bash(npm run build:contracts:*)",
+      "Bash(ln:*)",
+      "WebFetch(domain:hardhat.org)",
+      "Bash(npm install:*)",
+      "Bash(/opt/homebrew/bin/npm install --save-dev jest @types/jest ts-jest)",
+      "Bash(npm test:*)",
+      "Bash(npm run oracle:test-api:*)",
+      "Bash(./run-oracle-test.sh:*)",
+      "Bash(npm run:*)",
+      "Bash(tsc)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

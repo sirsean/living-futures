@@ -1,8 +1,10 @@
 {
   "name": "living-futures-contracts",
   "version": "1.0.0",
-  "type": "module",
   "description": "Smart contracts for Living Futures platform",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "npx hardhat compile",
     "test": "npx hardhat test",
@@ -12,6 +14,7 @@
     "verify": "npx hardhat verify"
   },
   "devDependencies": {
+    "@openzeppelin/hardhat-upgrades": "^3.0.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",

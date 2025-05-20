@@ -69,6 +69,8 @@ export default function TechnicalGuide() {
             <li>Win percentage data feeds</li>
             <li>Game result recording</li>
             <li>End-of-season settlement</li>
+            <li>Upgradeable proxy infrastructure</li>
+            <li>Multi-source data validation</li>
           </ul>
         </li>
         
@@ -77,6 +79,126 @@ export default function TechnicalGuide() {
             <li>Cross-team liquidity allocation</li>
             <li>Equal distribution with dynamic rebalancing</li>
             <li>Excess profit handling</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h3 id="oracle-system-architecture">Oracle System Architecture</h3>
+      
+      <p>The Oracle system provides authoritative baseball data to the protocol through a combination of on-chain and off-chain components:</p>
+      
+      <h4>On-Chain Oracle Contract</h4>
+      
+      <p>The Oracle smart contract manages:</p>
+      
+      <ol>
+        <li><strong>Team Registry</strong>
+          <ul>
+            <li>Official team identifiers and metadata</li>
+            <li>Win/loss records tracking</li>
+            <li>Win percentage calculations (0-1000 scale)</li>
+          </ul>
+        </li>
+        
+        <li><strong>Game Repository</strong>
+          <ul>
+            <li>Game results storage with unique MLB IDs</li>
+            <li>Team performance automatic updates</li>
+            <li>Comprehensive event emissions for transparency</li>
+          </ul>
+        </li>
+        
+        <li><strong>Season Management</strong>
+          <ul>
+            <li>Season state tracking and transitions</li>
+            <li>Start/end timestamp management</li>
+            <li>Historical data preservation</li>
+          </ul>
+        </li>
+        
+        <li><strong>Administrative Functions</strong>
+          <ul>
+            <li>Error correction capabilities</li>
+            <li>Role-based access control (ORACLE_ROLE, ADMIN_ROLE)</li>
+            <li>Emergency pause functionality</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h4>Off-Chain Score Sync Service</h4>
+      
+      <p>The Score Sync Service automates game data synchronization:</p>
+      
+      <ol>
+        <li><strong>API Integration Layer</strong>
+          <ul>
+            <li>Primary MLB Stats API integration</li>
+            <li>Backup data sources (ESPN, Baseball Reference)</li>
+            <li>Rate limiting and error handling</li>
+          </ul>
+        </li>
+        
+        <li><strong>Data Processing</strong>
+          <ul>
+            <li>Data validation and format transformation</li>
+            <li>Anomaly detection for unusual scores</li>
+            <li>Cross-source verification</li>
+          </ul>
+        </li>
+        
+        <li><strong>Blockchain Interaction</strong>
+          <ul>
+            <li>Transaction management and gas optimization</li>
+            <li>Batch submission capabilities</li>
+            <li>Retry logic with exponential backoff</li>
+          </ul>
+        </li>
+        
+        <li><strong>Scheduling System</strong>
+          <ul>
+            <li>Multiple daily sync times (8 AM, 12 PM, 4 PM, 10 PM, 2 AM ET)</li>
+            <li>Manual trigger capabilities</li>
+            <li>Comprehensive monitoring and alerting</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h4>Implementation Timeline</h4>
+      
+      <p>Oracle system development follows this schedule:</p>
+      
+      <ol>
+        <li><strong>Week 1-2: Contract Development</strong>
+          <ul>
+            <li>Base Oracle contract with data structures</li>
+            <li>Team registration and game recording</li>
+            <li>Win percentage calculation logic</li>
+            <li>Proxy implementation for upgradeability</li>
+          </ul>
+        </li>
+        
+        <li><strong>Week 3-4: Score Sync Service</strong>
+          <ul>
+            <li>MLB API client implementation</li>
+            <li>Backup source integration</li>
+            <li>Data transformation and validation</li>
+            <li>Blockchain submission logic</li>
+          </ul>
+        </li>
+        
+        <li><strong>Week 5: Integration & Testing</strong>
+          <ul>
+            <li>End-to-end integration testing</li>
+            <li>Security review and gas optimization</li>
+            <li>Performance testing with historical data</li>
+          </ul>
+        </li>
+        
+        <li><strong>Week 6: Deployment & Operations</strong>
+          <ul>
+            <li>Mainnet contract deployment</li>
+            <li>Service deployment to Cloudflare Workers</li>
+            <li>Monitoring setup and documentation</li>
           </ul>
         </li>
       </ol>
@@ -259,11 +381,14 @@ export default function TechnicalGuide() {
       <p>These critical operations will run as scheduled Cloudflare Workers:</p>
       
       <ol>
-        <li><strong>Oracle Updates</strong> (After each game)
+        <li><strong>Oracle Updates</strong> (5 times daily: 8 AM, 12 PM, 4 PM, 10 PM, 2 AM ET)
           <ul>
-            <li>Fetch game results from reliable data sources</li>
-            <li>Update on-chain win percentages</li>
-            <li>Record game outcomes for historical data</li>
+            <li>Fetch game results from MLB Stats API (primary source)</li>
+            <li>Validate data against backup sources (ESPN, Baseball Reference)</li>
+            <li>Update on-chain win percentages with batch submissions</li>
+            <li>Record game outcomes with MLB game IDs</li>
+            <li>Handle special cases (double-headers, postponements)</li>
+            <li>Emit events for transparency and monitoring</li>
           </ul>
         </li>
         

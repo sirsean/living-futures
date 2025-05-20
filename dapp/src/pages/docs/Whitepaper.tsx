@@ -180,6 +180,7 @@ where:
         <li>Oracle publishes daily win % for each team</li>
         <li>Funding calculations use oracle-verified data</li>
         <li>End-of-season settlement uses final oracle-verified win %</li>
+        <li>Upgradeable proxy architecture for continuous improvements</li>
       </ul>
 
       <h2 id="liquidity-provision-system">Liquidity Provision System</h2>
@@ -265,25 +266,55 @@ where:
       <h3 id="data-sources">Data Sources</h3>
       
       <ul>
-        <li><strong>Primary:</strong> Official MLB game results</li>
-        <li><strong>Backup:</strong> Multiple data providers for redundancy</li>
-        <li><strong>Validation:</strong> Consensus mechanism across data sources</li>
+        <li><strong>Primary:</strong> MLB Stats API (official MLB data source)</li>
+        <li><strong>Backup Providers:</strong> 
+          <ul>
+            <li>ESPN API for rapid updates</li>
+            <li>Baseball Reference for historical verification</li>
+            <li>The Sports DB as tertiary fallback</li>
+          </ul>
+        </li>
+        <li><strong>Validation:</strong> Cross-source verification with anomaly detection</li>
+        <li><strong>Reliability:</strong> Automatic failover between data sources</li>
+      </ul>
+      
+      <h3 id="oracle-contract-architecture">Oracle Contract Architecture</h3>
+      
+      <ul>
+        <li><strong>Team Registry:</strong> Official team identifiers and metadata</li>
+        <li><strong>Game Repository:</strong> Comprehensive game results with MLB IDs</li>
+        <li><strong>Season Management:</strong> State tracking and transitions</li>
+        <li><strong>Administrative Controls:</strong> Error correction and emergency functions</li>
+        <li><strong>Proxy Pattern:</strong> Upgradeable architecture for continuous improvement</li>
       </ul>
       
       <h3 id="update-mechanism">Update Mechanism</h3>
       
       <ul>
-        <li><strong>Game Results:</strong> Real-time updates after each game</li>
-        <li><strong>Win Percentage:</strong> Calculated after each game conclusion</li>
-        <li><strong>Settlement Data:</strong> Final regular season records</li>
+        <li><strong>Sync Schedule:</strong> 5 times daily (8 AM, 12 PM, 4 PM, 10 PM, 2 AM ET)</li>
+        <li><strong>Game Results:</strong> Batch updates after game completion</li>
+        <li><strong>Win Percentage:</strong> Automatic calculation (0-1000 scale)</li>
+        <li><strong>Special Cases:</strong> Handles double-headers, postponements, suspensions</li>
+        <li><strong>Gas Optimization:</strong> Batch submission for efficiency</li>
       </ul>
       
-      <h3 id="node-operations">Node Operations</h3>
+      <h3 id="score-sync-service">Score Sync Service</h3>
       
       <ul>
-        <li><strong>Decentralized Network:</strong> Multiple oracle nodes</li>
-        <li><strong>Consensus Requirement:</strong> 2/3 majority for updates</li>
-        <li><strong>Dispute Resolution:</strong> Governance mechanism for edge cases</li>
+        <li><strong>API Integration:</strong> Connects to multiple data sources</li>
+        <li><strong>Data Processing:</strong> Validation and format transformation</li>
+        <li><strong>Blockchain Submission:</strong> Managed transactions with retry logic</li>
+        <li><strong>Error Handling:</strong> Comprehensive fallback mechanisms</li>
+        <li><strong>Monitoring:</strong> Real-time alerts and performance tracking</li>
+      </ul>
+      
+      <h3 id="security-measures">Security Measures</h3>
+      
+      <ul>
+        <li><strong>Access Control:</strong> Role-based permissions (ORACLE_ROLE, ADMIN_ROLE)</li>
+        <li><strong>Multi-signature:</strong> Critical operations require multiple signatures</li>
+        <li><strong>Data Integrity:</strong> Event logging for complete audit trail</li>
+        <li><strong>Economic Security:</strong> No direct incentives for manipulation</li>
       </ul>
       
       <h2 id="tokenomics-governance">Tokenomics & Governance</h2>
@@ -372,6 +403,7 @@ where:
         <li>TeamVirtualAMM</li>
         <li>LiquidityManager</li>
         <li>InsuranceFund</li>
+        <li>BaseballOracle (Upgradeable)</li>
         <li>OracleCoordinator</li>
       </ul>
       

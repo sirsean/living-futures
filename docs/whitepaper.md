@@ -208,9 +208,9 @@ Meta-liquidity pool for ecosystem-wide exposure:
 
 ### Data Sources
 
-- **Primary:** Official MLB game results
-- **Backup:** Multiple data providers for redundancy
-- **Validation:** Consensus mechanism across data sources
+- **Primary and Only:** Official MLB game results from MLB Stats API
+- **Validation:** Comprehensive data validation and sanity checking
+- **Reliability:** Robust retry mechanisms and error handling
 
 ### Update Mechanism
 
