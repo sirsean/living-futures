@@ -24,7 +24,9 @@
       "Bash(npm run:*)",
       "Bash(tsc)",
       "Bash(npx tsc:*)",
-      "Bash(./run-tests.sh:*)"
+      "Bash(./run-tests.sh:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

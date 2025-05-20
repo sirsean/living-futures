@@ -86,6 +86,46 @@ describe('OracleSyncService', () => {
     ]);
   });
   
+  test('should filter out postponed games even if returned from data service', async () => {
+    // Setup mock games including a postponed game
+    const mockGames = [
+      {
+        gameId: 123,
+        homeTeam: 'HOU',
+        awayTeam: 'NYY',
+        homeScore: 5,
+        awayScore: 3,
+        gameDate: 1684800000,
+        gameEndTimestamp: 1684810800,
+        gameStatus: 'Final'
+      },
+      {
+        gameId: 777839,
+        homeTeam: 'MIN',
+        awayTeam: 'CLE',
+        homeScore: 0,
+        awayScore: 0,
+        gameDate: 1716249600,
+        gameEndTimestamp: 1716249600,
+        gameStatus: 'Postponed' // This should be filtered out
+      }
+    ];
+    
+    // Configure the mock to return our test data
+    mockGetGamesForDate.mockResolvedValue(mockGames);
+    
+    // Call the method under test
+    const result = await oracleSyncService.prepareGamesForDate(new Date('2023-05-23'));
+    
+    // Should only include Final games, not postponed
+    expect(result.length).toBe(1);
+    expect(result[0].gameId).toBe(123);
+    
+    // Verify postponed game was filtered out
+    const gameIds = result.map(game => game.gameId);
+    expect(gameIds).not.toContain(777839);
+  });
+
   test('should handle empty game list', async () => {
     // Configure the mock to return empty array
     mockGetGamesForDate.mockResolvedValue([]);

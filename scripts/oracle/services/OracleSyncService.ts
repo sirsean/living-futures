@@ -35,7 +35,7 @@ export class OracleSyncService {
     // Fetch all games for the date
     const games = await this.baseballDataService.getGamesForDate(formattedDate);
     
-    // Filter for completed games only
+    // Filter for completed games only (postponed games already filtered by BaseballDataService)
     const finalGames = games.filter(game => game.gameStatus === 'Final');
     
     // Transform to oracle format

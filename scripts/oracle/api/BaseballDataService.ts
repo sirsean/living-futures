@@ -108,6 +108,11 @@ export class BaseballDataService {
       return false;
     }
     
+    // Skip postponed games even if they show as "Final" - they don't affect standings
+    if (game.status.detailedState?.includes('Postponed')) {
+      return false;
+    }
+    
     // Include games that are Final or Live
     return ['Final', 'Live'].includes(game.status.abstractGameState);
   }

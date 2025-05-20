@@ -122,6 +122,29 @@ describe('BaseballDataService', () => {
         },
         gameType: 'E', // Exhibition, not regular season
         season: '2025'
+      },
+      // Postponed game (should be filtered out even though abstractGameState is Final)
+      {
+        gamePk: 777839,
+        gameDate: '2025-05-20T23:40:00Z',
+        teams: {
+          away: {
+            team: { id: 114, name: 'Cleveland Guardians' },
+            score: 0
+          },
+          home: {
+            team: { id: 142, name: 'Minnesota Twins' },
+            score: 0
+          }
+        },
+        status: {
+          abstractGameState: 'Final',
+          codedGameState: 'D',
+          detailedState: 'Postponed',
+          startTimeTBD: false
+        },
+        gameType: 'R',
+        season: '2025'
       }
     ];
     
@@ -205,6 +228,26 @@ describe('BaseballDataService', () => {
         teamCode: 'chn',
         locationName: 'Chicago',
         shortName: 'Chi Cubs',
+        active: true
+      },
+      114: {
+        id: 114,
+        name: 'Cleveland Guardians',
+        teamName: 'Guardians',
+        abbreviation: 'CLE',
+        teamCode: 'cle',
+        locationName: 'Cleveland',
+        shortName: 'Cleveland',
+        active: true
+      },
+      142: {
+        id: 142,
+        name: 'Minnesota Twins',
+        teamName: 'Twins',
+        abbreviation: 'MIN',
+        teamCode: 'min',
+        locationName: 'Minnesota',
+        shortName: 'Minnesota',
         active: true
       }
     };
@@ -299,6 +342,21 @@ describe('BaseballDataService', () => {
       // Scores should default to 0
       expect(results[0].homeScore).toBe(0);
       expect(results[0].awayScore).toBe(0);
+    });
+
+    it('should filter out postponed games even if abstractGameState is Final', async () => {
+      const results = await service.getGamesForDate('2025-05-19');
+      
+      // Should return 2 games (Final and Live), postponed game should be filtered out
+      expect(results).toHaveLength(2);
+      
+      // Verify no postponed games are included
+      const gameIds = results.map(game => game.gameId);
+      expect(gameIds).not.toContain(777839); // The postponed game ID
+      
+      // Verify we only have the expected games
+      expect(gameIds).toContain(123456); // Final game
+      expect(gameIds).toContain(123457); // Live game
     });
 
     it('should cache team data to minimize API calls', async () => {
