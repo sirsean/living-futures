@@ -27,6 +27,9 @@ artifacts/
 typechain/
 typechain-types/
 
+# Local deployment files (change on every restart)
+contracts/deployments/localhost-*.json
+
 # React/Vite files
 dapp/dist/
 dapp/build/

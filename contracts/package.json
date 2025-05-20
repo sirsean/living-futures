@@ -10,6 +10,10 @@
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
     "deploy": "npx hardhat run scripts/deploy.ts",
+    "deploy:local": "npx hardhat run scripts/deploy-local.ts --network localhost",
+    "test:local": "npx hardhat run scripts/test-local.ts --network localhost",
+    "node": "npx hardhat node",
+    "console": "npx hardhat console --network localhost",
     "lint": "npx eslint . --ext .ts,.js",
     "verify": "npx hardhat verify"
   },

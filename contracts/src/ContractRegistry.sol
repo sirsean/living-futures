@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract ContractRegistry is Ownable {
+contract ContractRegistry is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     struct Version {
         address implementation;
         uint256 deployedAt;
@@ -18,7 +20,17 @@ contract ContractRegistry is Ownable {
     event ImplementationRegistered(string contractName, address implementation, string versionTag);
     event VersionUpdated(string contractName, uint256 version);
     
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+    
+    function initialize(address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+    }
+    
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
     
     function registerProxy(string memory contractName, address proxy) external onlyOwner {
         require(proxy != address(0), "Invalid proxy address");

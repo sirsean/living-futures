@@ -1,0 +1,19 @@
+{
+  "network": "network-name",
+  "chainId": 0,
+  "deployedAt": "ISO-timestamp",
+  "deployer": "0x...",
+  "ProxyAdmin": {
+    "address": "0x..."
+  },
+  "ContractRegistry": {
+    "proxy": "0x...",
+    "implementation": "0x...",
+    "version": "1.0.0"
+  },
+  "BaseballOracle": {
+    "proxy": "0x...",
+    "implementation": "0x...",
+    "version": "1.0.0"
+  }
+}

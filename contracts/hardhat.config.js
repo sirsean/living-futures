@@ -24,10 +24,19 @@ const config = {
   },
   networks: {
     hardhat: {
+      chainId: 31337,
       forking: {
         url: process.env.BASE_RPC_URL || "https://mainnet.base.org",
         enabled: false
+      },
+      accounts: {
+        count: 10,
+        accountsBalance: "10000000000000000000000"
       }
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545",
+      chainId: 31337
     },
     ...(process.env.PRIVATE_KEY ? {
       base: {
