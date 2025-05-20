@@ -24,17 +24,6 @@
     "sync-github-secrets": "cd scripts && npm run sync-github-secrets",
     "oracle:sync": "cd scripts && npm run oracle:sync --"
   },
-  "workspaces": {
-    "packages": [
-      "contracts",
-      "dapp",
-      "scripts"
-    ],
-    "nohoist": [
-      "**/vite",
-      "**/vite/**"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sirsean/living-futures.git"

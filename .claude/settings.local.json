@@ -23,7 +23,8 @@
       "Bash(./run-oracle-test.sh:*)",
       "Bash(npm run:*)",
       "Bash(tsc)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(./run-tests.sh:*)"
     ],
     "deny": []
   }

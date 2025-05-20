@@ -39,6 +39,19 @@ The project has three main components:
 - Comprehensive testing for all contracts
 - Clean, modular architecture
 
+## Development Environment Setup
+
+### npm Configuration Fix
+The project originally used npm workspaces but this caused conflicts in the Claude environment. 
+**Fixed:** Removed workspaces configuration from root package.json. Each package now manages its own dependencies.
+
+### Running Tests & Commands
+All npm commands now work normally:
+- **Contracts**: `cd contracts && npm test`
+- **Scripts**: `cd scripts && npm test`  
+- **Dapp**: `cd dapp && npm run dev`
+- **Root commands**: Use the provided scripts that cd into each directory
+
 ## Key Features
 
 - Virtual AMM for price discovery

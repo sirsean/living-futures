@@ -76,7 +76,7 @@ describe("BaseballOracle", function () {
             expect(team.abbreviation).to.equal("NYY");
             expect(team.wins).to.equal(0);
             expect(team.losses).to.equal(0);
-            expect(team.winPct).to.equal(0);
+            expect(team.winPct).to.equal(500);
             expect(team.exists).to.be.true;
         });
 
@@ -195,7 +195,7 @@ describe("BaseballOracle", function () {
         });
 
         it("Should handle 0-0 record", async () => {
-            expect(await oracle.getTeamWinPct("NYY")).to.equal(0);
+            expect(await oracle.getTeamWinPct("NYY")).to.equal(500);
         });
     });
 
@@ -219,7 +219,7 @@ describe("BaseballOracle", function () {
             const teamAfter = await oracle.getTeam("NYY");
             expect(teamAfter.wins).to.equal(0);
             expect(teamAfter.losses).to.equal(0);
-            expect(teamAfter.winPct).to.equal(0);
+            expect(teamAfter.winPct).to.equal(500);
         });
 
         it("Should deactivate season", async () => {

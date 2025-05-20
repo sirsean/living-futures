@@ -69,6 +69,7 @@ For each baseball game, the Oracle must record:
 3. **Team Performance Metrics**:
    - Win/loss record
    - Win percentage (expressed as 0-1000, where 500 = .500)
+     - Teams with 0-0 records start at 500 (50%) as a neutral baseline
    - Last game timestamp
 
 This data structure accommodates special cases like double-headers (via unique game IDs) and postponed games (via status tracking).
@@ -140,7 +141,7 @@ struct Team {
     string abbreviation;    // Team abbreviation (e.g., "NYY")
     uint256 wins;           // Season wins
     uint256 losses;         // Season losses
-    uint256 winPct;         // Win percentage (0-1000 scale)
+    uint256 winPct;         // Win percentage (0-1000 scale, starts at 500 for 0-0 records)
     uint256 lastGameTimestamp; // When the last recorded game ended
     uint256 lastUpdateTimestamp; // When the oracle last updated this team
     bool exists;            // Whether this team exists
@@ -170,7 +171,7 @@ The Oracle contract provides these core functionalities:
 1. **Team Registration**
    - Register official team identifiers
    - Link abbreviations and full names
-   - Initialize with zero records (or previous season data if relevant)
+   - Initialize with 0-0 records and 500 win percentage (50% neutral baseline)
 
 2. **Game Recording**
    - Individual game result submission
@@ -492,7 +493,7 @@ Standardized game status values:
 
 ## Appendix C: Glossary
 
-- **Win Percentage**: Number of wins divided by total games, expressed on 0-1000 scale
+- **Win Percentage**: Number of wins divided by total games, expressed on 0-1000 scale (teams with 0-0 records start at 500)
 - **Oracle**: System providing authoritative external data to smart contracts
 - **Score Sync Service**: Off-chain service fetching and submitting game data
 - **Double-Header**: Two games played between the same teams on the same day

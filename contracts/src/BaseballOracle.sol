@@ -67,7 +67,7 @@ contract BaseballOracle is
             abbreviation: abbreviation,
             wins: 0,
             losses: 0,
-            winPct: 0,
+            winPct: 500,
             lastGameTimestamp: 0,
             lastUpdateTimestamp: block.timestamp,
             exists: true
@@ -173,7 +173,7 @@ contract BaseballOracle is
     }
 
     function _calculateWinPct(uint256 wins, uint256 losses) private pure returns (uint256) {
-        if (wins + losses == 0) return 0;
+        if (wins + losses == 0) return 500; // 50% for teams with no games played
         // Add 0.5 for rounding: (wins * 1000 + 0.5 * (wins + losses)) / (wins + losses)
         return ((wins * 1000) + ((wins + losses) / 2)) / (wins + losses);
     }
@@ -206,7 +206,7 @@ contract BaseballOracle is
                 Team storage team = teams[teamIds[i]];
                 team.wins = 0;
                 team.losses = 0;
-                team.winPct = 0;
+                team.winPct = 500;
                 team.lastGameTimestamp = 0;
                 team.lastUpdateTimestamp = block.timestamp;
             }

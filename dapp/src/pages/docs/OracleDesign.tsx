@@ -116,7 +116,11 @@ export default function OracleDesign() {
         <li><strong>Team Performance Metrics</strong>:
           <ul>
             <li>Win/loss record</li>
-            <li>Win percentage (expressed as 0-1000, where 500 = .500)</li>
+            <li>Win percentage (expressed as 0-1000, where 500 = .500)
+              <ul>
+                <li>Teams with 0-0 records start at 500 (50%) as a neutral baseline</li>
+              </ul>
+            </li>
             <li>Last game timestamp</li>
           </ul>
         </li>
