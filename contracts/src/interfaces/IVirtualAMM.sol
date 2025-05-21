@@ -222,6 +222,20 @@ interface IVirtualAMM {
         uint256 maintenanceRatio
     );
 
+    /**
+     * @dev Get all position IDs owned by a trader
+     * @param trader Address of the trader
+     * @return positionIds Array of position IDs owned by the trader
+     */
+    function getTraderPositions(address trader) external view returns (uint256[] memory positionIds);
+
+    /**
+     * @dev Get number of positions owned by a trader
+     * @param trader Address of the trader
+     * @return count Number of positions owned by the trader
+     */
+    function getTraderPositionCount(address trader) external view returns (uint256 count);
+
     // ============ MUTATIVE FUNCTIONS ============
 
     /**

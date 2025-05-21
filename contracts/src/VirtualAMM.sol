@@ -21,6 +21,12 @@ import "./interfaces/IBaseballOracle.sol";
  * - Price range: [0, 1000] representing [0%, 100%] win probability
  * - Funding rate: (marketPrice - oraclePrice) * dailyFundingFactor
  * 
+ * Position Tracking:
+ * - Each position is assigned a unique incrementing positionId
+ * - Positions are indexed by positionId in the positions mapping
+ * - traderPositions mapping allows efficient lookup of all positions owned by a trader
+ * - Position tracking is automatically maintained on open/close operations
+ * 
  * Security Features:
  * - Role-based access control for admin functions
  * - Reentrancy protection for all state-changing functions
@@ -65,6 +71,7 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     
     // Position tracking
     mapping(uint256 => Position) public positions;
+    mapping(address => uint256[]) public traderPositions;  // trader => array of position IDs
     uint256 public nextPositionId = 1;
     int256 public netPositionImbalance;  // longPositions - shortPositions
     uint256 public totalLiquidity;
@@ -318,6 +325,9 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         netPositionImbalance += size;
         accumulatedFees += quote.fees;
         
+        // Add position to trader's position list
+        traderPositions[trader].push(positionId);
+        
         emit PositionOpened(positionId, trader, size, quote.price, margin, leverage);
     }
 
@@ -344,6 +354,9 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         netPositionImbalance -= position.size;
         position.isOpen = false;
         accumulatedFees += closingFees;
+        
+        // Remove position from trader's position list
+        _removeTraderPosition(position.trader, positionId);
         
         // Calculate final payout
         int256 finalPayout = int256(position.margin) + pnl - int256(closingFees);
@@ -451,6 +464,26 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         return x >= 0 ? x : -x;
     }
 
+    /**
+     * @dev Remove position ID from trader's position array
+     * @param trader Address of the trader
+     * @param positionId Position ID to remove
+     */
+    function _removeTraderPosition(address trader, uint256 positionId) internal {
+        uint256[] storage traderPositionArray = traderPositions[trader];
+        uint256 length = traderPositionArray.length;
+        
+        // Find the position in the array and remove it
+        for (uint256 i = 0; i < length; i++) {
+            if (traderPositionArray[i] == positionId) {
+                // Move the last element to this position and pop
+                traderPositionArray[i] = traderPositionArray[length - 1];
+                traderPositionArray.pop();
+                break;
+            }
+        }
+    }
+
     // ============ PARAMETER VALIDATION ============
 
     /**
@@ -556,6 +589,24 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         uint256 _maintenanceRatio
     ) {
         return (maxLeverage, MIN_LEVERAGE, maintenanceRatio);
+    }
+
+    /**
+     * @dev Get all position IDs owned by a trader
+     * @param trader Address of the trader
+     * @return positionIds Array of position IDs owned by the trader
+     */
+    function getTraderPositions(address trader) external view returns (uint256[] memory positionIds) {
+        return traderPositions[trader];
+    }
+
+    /**
+     * @dev Get number of positions owned by a trader
+     * @param trader Address of the trader
+     * @return count Number of positions owned by the trader
+     */
+    function getTraderPositionCount(address trader) external view returns (uint256 count) {
+        return traderPositions[trader].length;
     }
 
     // ============ ADMIN FUNCTIONS ============
