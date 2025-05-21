@@ -128,12 +128,32 @@ End of Season (Final .595):
       
       <p>Traders can:</p>
       <ul>
-        <li>Open long/short positions with leverage</li>
-        <li>Close positions at any time</li>
-        <li>Receive/pay daily funding</li>
-        <li>Hold until settlement</li>
-        <li>Get automatically liquidated if margin falls below maintenance level</li>
+        <li><strong>Open leveraged positions:</strong> 1x to 10x leverage default (up to 100x maximum, configurable by governance)</li>
+        <li><strong>Flexible exit strategies:</strong> Close positions at any time during the season</li>
+        <li><strong>Daily funding:</strong> Receive or pay funding based on price-oracle divergence</li>
+        <li><strong>Settlement options:</strong> Hold until automatic settlement at season end</li>
+        <li><strong>Risk management:</strong> Automatic liquidation when equity falls below maintenance margin</li>
       </ul>
+      
+      <h4>Leverage System</h4>
+      
+      <p>The platform implements a comprehensive leverage system:</p>
+      <ul>
+        <li><strong>Leverage Range:</strong> 1x (no leverage) to 10x default (up to 100x maximum, admin configurable)</li>
+        <li><strong>Margin Efficiency:</strong> Higher leverage requires proportionally less initial margin</li>
+        <li><strong>PnL Amplification:</strong> Profits and losses are multiplied by the leverage factor</li>
+        <li><strong>Liquidation Protection:</strong> Maintenance margin set at 80% of initial margin requirement</li>
+        <li><strong>Dynamic Limits:</strong> Maximum leverage can be adjusted based on market conditions</li>
+      </ul>
+      
+      <pre><code>{`Leverage Example (5x):
+- Position Size: 100 units
+- Unleveraged Margin Required: $50 (10% of $500 notional)
+- 5x Leveraged Margin Required: $10 (reduced by 5x)
+- Price Movement: +2% ($10 gain)
+- Unleveraged PnL: $2 (2% on margin)
+- 5x Leveraged PnL: $10 (10% on margin)
+- Liquidation Price: 8% below entry (vs 10% unleveraged)`}</code></pre>
       
       <h3 id="key-benefits">Key Benefits</h3>
       
@@ -141,7 +161,7 @@ End of Season (Final .595):
         <li><strong>Natural Convergence:</strong> Funding mechanism drives price toward actual win percentage</li>
         <li><strong>Position Flexibility:</strong> Enter, exit, or adjust position size throughout season</li>
         <li><strong>Price Discovery:</strong> Market-driven prices reflecting collective intelligence</li>
-        <li><strong>Capital Efficiency:</strong> Leverage allows efficient capital deployment</li>
+        <li><strong>Capital Efficiency:</strong> Up to 100x leverage available for efficient capital deployment</li>
       </ul>
       
       <h2 id="virtual-amm-design">Virtual AMM Design</h2>
@@ -247,8 +267,9 @@ where:
       <h3 id="liquidation-process">Liquidation Process</h3>
       
       <ul>
-        <li><strong>Threshold:</strong> Maintenance margin requirement based on position size</li>
-        <li><strong>Process:</strong> Positions liquidated when equity below maintenance</li>
+        <li><strong>Threshold:</strong> Maintenance margin set at 80% of initial margin requirement</li>
+        <li><strong>Leverage Consideration:</strong> Liquidation thresholds adjust based on leverage multiplier</li>
+        <li><strong>Process:</strong> Positions liquidated when equity below maintenance margin</li>
         <li><strong>Incentives:</strong> Liquidators receive fee for successful liquidations</li>
         <li><strong>Shortfall Handling:</strong> Insurance fund covers underwater positions</li>
       </ul>
@@ -428,10 +449,11 @@ where:
       
       <p><strong>Implementation Status:</strong></p>
       <ul>
-        <li>✅ <strong>Production Ready:</strong> VirtualAMM with complete feature set</li>
-        <li>✅ <strong>Governance:</strong> Configurable parameters (sensitivity, funding, margin, fees)</li>
+        <li>✅ <strong>Production Ready:</strong> VirtualAMM with leverage and complete feature set</li>
+        <li>✅ <strong>Governance:</strong> Configurable parameters (sensitivity, funding, margin, fees, leverage)</li>
         <li>✅ <strong>Security:</strong> Role-based access control, comprehensive validation</li>
-        <li>✅ <strong>Testing:</strong> 31 comprehensive test cases with 100% pass rate</li>
+        <li>✅ <strong>Testing:</strong> 79 comprehensive test cases with 100% pass rate</li>
+        <li>✅ <strong>Leverage System:</strong> Full 1x-10x leverage with liquidation price calculations</li>
       </ul>
       
       <h3 id="off-chain-infrastructure">Off-Chain Infrastructure</h3>
@@ -467,7 +489,7 @@ where:
       <ul>
         <li><strong>User Warnings:</strong> Clear communication of position risks</li>
         <li><strong>Insurance Staking Disclosures:</strong> Explicit zero base rate disclosure</li>
-        <li><strong>Leverage Warnings:</strong> Prominent liquidation risk notifications</li>
+        <li><strong>Leverage Warnings:</strong> Prominent liquidation risk notifications with leverage-specific calculations</li>
         <li><strong>Seasonal Dynamics:</strong> Clear indication of off-season implications</li>
       </ul>
       

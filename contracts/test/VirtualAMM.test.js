@@ -99,7 +99,7 @@ describe("VirtualAMM", function () {
             const positionSize = ethers.parseEther("100");
             const margin = ethers.parseEther("50");
             
-            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin);
+            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin, ethers.parseEther("1")); // 1x leverage
             
             const price = await virtualAMM.getCurrentPrice();
             expect(price).to.be.gt(500);
@@ -115,7 +115,7 @@ describe("VirtualAMM", function () {
             const positionSize = ethers.parseEther("-100");
             const margin = ethers.parseEther("50");
             
-            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin);
+            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin, ethers.parseEther("1")); // 1x leverage
             
             const price = await virtualAMM.getCurrentPrice();
             expect(price).to.be.lt(500);
@@ -131,7 +131,7 @@ describe("VirtualAMM", function () {
             const largePosition = ethers.parseEther("1000");
             const largeMargin = ethers.parseEther("500");
             
-            await virtualAMM.connect(trader1).openPosition(trader1.address, largePosition, largeMargin);
+            await virtualAMM.connect(trader1).openPosition(trader1.address, largePosition, largeMargin, ethers.parseEther("1")); // 1x leverage
             
             const price = await virtualAMM.getCurrentPrice();
             expect(price).to.be.lte(1000);
@@ -149,7 +149,7 @@ describe("VirtualAMM", function () {
             const positionSize = ethers.parseEther("100");
             const margin = ethers.parseEther("50");
             
-            const tx = await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin);
+            const tx = await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin, ethers.parseEther("1")); // 1x leverage
             
             const position = await virtualAMM.getPosition(1);
             expect(position.trader).to.equal(trader1.address);
@@ -174,7 +174,7 @@ describe("VirtualAMM", function () {
             const insufficientMargin = ethers.parseEther("1"); // Too small
             
             await expect(
-                virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, insufficientMargin)
+                virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, insufficientMargin, ethers.parseEther("1")) // 1x leverage
             ).to.be.revertedWithCustomError(virtualAMM, "InsufficientMargin");
         });
 
@@ -187,12 +187,12 @@ describe("VirtualAMM", function () {
             // Open position
             const positionSize = ethers.parseEther("100");
             const margin = ethers.parseEther("50");
-            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin);
+            await virtualAMM.connect(trader1).openPosition(trader1.address, positionSize, margin, ethers.parseEther("1")); // 1x leverage
             
             const entryPrice = (await virtualAMM.getPosition(1)).entryPrice;
             
             // Move price by opening opposite position
-            await virtualAMM.connect(trader2).openPosition(trader2.address, ethers.parseEther("-150"), ethers.parseEther("75"));
+            await virtualAMM.connect(trader2).openPosition(trader2.address, ethers.parseEther("-150"), ethers.parseEther("75"), ethers.parseEther("1")); // 1x leverage
             
             const exitPrice = await virtualAMM.getCurrentPrice();
             
@@ -222,7 +222,7 @@ describe("VirtualAMM", function () {
             
             // Add liquidity and open position
             await virtualAMM.connect(owner).addLiquidity(ethers.parseEther("1000"));
-            await virtualAMM.connect(trader1).openPosition(trader1.address, ethers.parseEther("100"), ethers.parseEther("50"));
+            await virtualAMM.connect(trader1).openPosition(trader1.address, ethers.parseEther("100"), ethers.parseEther("50"), ethers.parseEther("1")); // 1x leverage
             
             await expect(
                 virtualAMM.connect(trader2).closePosition(1)
@@ -310,7 +310,7 @@ describe("VirtualAMM", function () {
             
             // Add liquidity and create imbalance
             await virtualAMM.connect(owner).addLiquidity(ethers.parseEther("1000"));
-            await virtualAMM.connect(trader1).openPosition(trader1.address, ethers.parseEther("200"), ethers.parseEther("100"));
+            await virtualAMM.connect(trader1).openPosition(trader1.address, ethers.parseEther("200"), ethers.parseEther("100"), ethers.parseEther("1")); // 1x leverage
             
             const marketPrice = await virtualAMM.getCurrentPrice();
             const oraclePrice = await oracle.getTeamWinPct("NYY");

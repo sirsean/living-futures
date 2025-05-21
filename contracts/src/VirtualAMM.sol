@@ -49,6 +49,9 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     uint256 public constant MAX_MARGIN_RATIO = 5e17;    // 50% maximum margin
     uint256 public constant MIN_TRADING_FEE = 1e14;     // 0.01% minimum trading fee
     uint256 public constant MAX_TRADING_FEE = 1e16;     // 1% maximum trading fee
+    uint256 public constant MIN_LEVERAGE = 1e18;        // 1x minimum leverage  
+    uint256 public constant MAX_LEVERAGE = 100e18;      // 100x maximum leverage
+    uint256 public constant DEFAULT_MAINTENANCE_RATIO = 8e17; // 80% of initial margin
 
     // ============ STATE VARIABLES ============
 
@@ -57,6 +60,8 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     uint256 public fundingFactor;         // Daily funding rate factor
     uint256 public minMarginRatio;        // Minimum margin requirement ratio
     uint256 public tradingFeeRate;        // Trading fee rate (e.g., 3e15 = 0.3%)
+    uint256 public maxLeverage;           // Maximum leverage allowed
+    uint256 public maintenanceRatio;      // Maintenance margin ratio
     
     // Position tracking
     mapping(uint256 => Position) public positions;
@@ -118,6 +123,8 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         fundingFactor = _fundingFactor;
         minMarginRatio = _minMarginRatio;
         tradingFeeRate = _tradingFeeRate;
+        maxLeverage = 5e18; // Default to 5x max leverage
+        maintenanceRatio = DEFAULT_MAINTENANCE_RATIO;
         
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
         _grantRole(ADMIN_ROLE, _admin);
@@ -159,9 +166,14 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     /**
      * @dev Get quote for opening a position
      */
-    function getQuote(int256 positionSize) external view returns (Quote memory quote) {
+    function getQuote(int256 positionSize, uint256 leverage) external view returns (Quote memory quote) {
         if (positionSize == 0) {
             revert ZeroAmount();
+        }
+        
+        // Validate leverage
+        if (leverage < MIN_LEVERAGE || leverage > maxLeverage) {
+            revert InvalidLeverage();
         }
         
         uint256 currentPrice = getCurrentPrice();
@@ -174,16 +186,21 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         uint256 avgPrice = (currentPrice + newPrice) / 2;
         uint256 priceImpact = newPrice > currentPrice ? newPrice - currentPrice : currentPrice - newPrice;
         
-        // Calculate required margin and fees
+        // Calculate required margin and fees with leverage consideration
         uint256 positionValue = uint256(_abs(positionSize)) * avgPrice / PRICE_SCALE;
-        uint256 requiredMargin = (positionValue * minMarginRatio) / PRECISION;
+        uint256 requiredMargin = (positionValue * minMarginRatio) / leverage; // Leverage reduces margin requirement
         uint256 fees = (positionValue * tradingFeeRate) / PRECISION;
+        
+        // Calculate liquidation price
+        uint256 liquidationPrice = _calculateLiquidationPrice(currentPrice, positionSize > 0, leverage);
         
         quote = Quote({
             price: avgPrice,
             priceImpact: priceImpact,
             requiredMargin: requiredMargin,
-            fees: fees
+            fees: fees,
+            maxLeverage: maxLeverage,
+            liquidationPrice: liquidationPrice
         });
     }
 
@@ -211,8 +228,11 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         uint256 currentPrice = getCurrentPrice();
         int256 priceDelta = int256(currentPrice) - int256(position.entryPrice);
         
-        // PnL = positionSize * priceDelta / priceScale
-        return (position.size * priceDelta) / int256(PRICE_SCALE);
+        // Base PnL = positionSize * priceDelta / priceScale
+        int256 basePnL = (position.size * priceDelta) / int256(PRICE_SCALE);
+        
+        // Leveraged PnL = basePnL * leverage
+        return (basePnL * int256(position.leverage)) / int256(PRECISION);
     }
 
     /**
@@ -245,9 +265,11 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         uint256 positionSize = uint256(_abs(position.size));
         uint256 currentPrice = getCurrentPrice();
         uint256 positionNotional = (positionSize * currentPrice) / PRICE_SCALE;
-        uint256 requiredMargin = (positionNotional * minMarginRatio) / PRECISION;
         
-        return equity >= int256(requiredMargin);
+        // Maintenance margin = (notional * marginRatio * maintenanceRatio) / leverage
+        uint256 maintenanceMargin = (positionNotional * minMarginRatio * maintenanceRatio) / (PRECISION * position.leverage);
+        
+        return equity >= int256(maintenanceMargin);
     }
 
     // ============ POSITION MANAGEMENT ============
@@ -258,14 +280,20 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     function openPosition(
         address trader,
         int256 size,
-        uint256 margin
+        uint256 margin,
+        uint256 leverage
     ) external nonReentrant whenNotPaused returns (uint256 positionId) {
         if (trader == address(0) || size == 0 || margin == 0) {
             revert InvalidParameters();
         }
         
+        // Validate leverage
+        if (leverage < MIN_LEVERAGE || leverage > maxLeverage) {
+            revert InvalidLeverage();
+        }
+        
         // Get quote and validate
-        Quote memory quote = this.getQuote(size);
+        Quote memory quote = this.getQuote(size, leverage);
         if (margin < quote.requiredMargin) {
             revert InsufficientMargin();
         }
@@ -281,6 +309,7 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
             size: size,
             entryPrice: quote.price,
             margin: margin,
+            leverage: leverage,
             timestamp: block.timestamp,
             isOpen: true
         });
@@ -289,7 +318,7 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         netPositionImbalance += size;
         accumulatedFees += quote.fees;
         
-        emit PositionOpened(positionId, trader, size, quote.price, margin);
+        emit PositionOpened(positionId, trader, size, quote.price, margin, leverage);
     }
 
     /**
@@ -464,6 +493,71 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @dev Calculate liquidation price for a position
+     */
+    function _calculateLiquidationPrice(uint256 entryPrice, bool isLong, uint256 leverage) internal view returns (uint256) {
+        // Calculate the price movement required to trigger liquidation
+        // Liquidation occurs when (margin + PnL) <= maintenanceMargin
+        // For long: liquidationPrice = entryPrice * (1 - maintenanceRatio * minMarginRatio / leverage)
+        // For short: liquidationPrice = entryPrice * (1 + maintenanceRatio * minMarginRatio / leverage)
+        
+        uint256 liquidationThreshold = (maintenanceRatio * minMarginRatio) / leverage;
+        
+        if (isLong) {
+            uint256 priceReduction = (entryPrice * liquidationThreshold) / PRECISION;
+            return entryPrice > priceReduction ? entryPrice - priceReduction : 0;
+        } else {
+            uint256 priceIncrease = (entryPrice * liquidationThreshold) / PRECISION;
+            uint256 liquidationPrice = entryPrice + priceIncrease;
+            return liquidationPrice <= PRICE_SCALE ? liquidationPrice : PRICE_SCALE;
+        }
+    }
+
+    // ============ BACKWARD COMPATIBILITY ============
+
+    /**
+     * @dev Get quote for opening a position (backward compatibility)
+     * Uses 1x leverage by default
+     */
+    function getQuote(int256 positionSize) external view returns (Quote memory quote) {
+        return this.getQuote(positionSize, PRECISION); // 1x leverage = 1e18
+    }
+
+    // ============ LEVERAGE-SPECIFIC VIEW FUNCTIONS ============
+
+    /**
+     * @dev Get the liquidation price for a position
+     */
+    function getLiquidationPrice(uint256 positionId) external view returns (uint256) {
+        Position memory position = positions[positionId];
+        if (!position.isOpen) {
+            revert PositionNotFound();
+        }
+        
+        return _calculateLiquidationPrice(position.entryPrice, position.size > 0, position.leverage);
+    }
+
+    /**
+     * @dev Get maximum leverage available for a position size
+     */
+    function getMaxLeverage(int256 positionSize) external view returns (uint256) {
+        // For now, return the global max leverage
+        // In future, this could be dynamic based on position size and liquidity
+        return maxLeverage;
+    }
+
+    /**
+     * @dev Get leverage configuration parameters
+     */
+    function getLeverageParameters() external view returns (
+        uint256 _maxLeverage,
+        uint256 _minLeverage,
+        uint256 _maintenanceRatio
+    ) {
+        return (maxLeverage, MIN_LEVERAGE, maintenanceRatio);
+    }
+
     // ============ ADMIN FUNCTIONS ============
 
     /**
@@ -599,6 +693,34 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         } else {
             _unpause();
         }
+    }
+
+    /**
+     * @dev Update maximum leverage allowed
+     */
+    function updateMaxLeverage(uint256 newMaxLeverage) external onlyRole(ADMIN_ROLE) {
+        if (newMaxLeverage < MIN_LEVERAGE || newMaxLeverage > MAX_LEVERAGE) {
+            revert InvalidParameters();
+        }
+        
+        uint256 oldValue = maxLeverage;
+        maxLeverage = newMaxLeverage;
+        
+        emit ParameterUpdated("maxLeverage", oldValue, newMaxLeverage);
+    }
+
+    /**
+     * @dev Update maintenance margin ratio
+     */
+    function updateMaintenanceRatio(uint256 newMaintenanceRatio) external onlyRole(ADMIN_ROLE) {
+        if (newMaintenanceRatio < 5e17 || newMaintenanceRatio > PRECISION) { // 50% to 100%
+            revert InvalidParameters();
+        }
+        
+        uint256 oldValue = maintenanceRatio;
+        maintenanceRatio = newMaintenanceRatio;
+        
+        emit ParameterUpdated("maintenanceRatio", oldValue, newMaintenanceRatio);
     }
 
     // ============ FUNDING AND LIQUIDATION ============

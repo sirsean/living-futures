@@ -23,6 +23,7 @@ interface IVirtualAMM {
      * @param size Position size (positive for long, negative for short)
      * @param entryPrice Price at which position was opened (scaled by 1000)
      * @param margin Initial margin posted for the position
+     * @param leverage Leverage multiplier (scaled by 1e18, e.g. 5e18 = 5x)
      * @param timestamp When the position was opened
      * @param isOpen Whether the position is currently active
      */
@@ -31,6 +32,7 @@ interface IVirtualAMM {
         int256 size;
         uint256 entryPrice;
         uint256 margin;
+        uint256 leverage;
         uint256 timestamp;
         bool isOpen;
     }
@@ -41,12 +43,16 @@ interface IVirtualAMM {
      * @param priceImpact Amount price would move due to this position
      * @param requiredMargin Minimum margin needed for this position
      * @param fees Fees that would be charged for this position
+     * @param maxLeverage Maximum leverage available for this position size
+     * @param liquidationPrice Liquidation price at given leverage
      */
     struct Quote {
         uint256 price;
         uint256 priceImpact;
         uint256 requiredMargin;
         uint256 fees;
+        uint256 maxLeverage;
+        uint256 liquidationPrice;
     }
 
     // ============ EVENTS ============
@@ -58,13 +64,15 @@ interface IVirtualAMM {
      * @param size Position size (positive for long, negative for short)
      * @param entryPrice Price at position entry
      * @param margin Margin posted
+     * @param leverage Leverage multiplier used
      */
     event PositionOpened(
         uint256 indexed positionId,
         address indexed trader,
         int256 size,
         uint256 entryPrice,
-        uint256 margin
+        uint256 margin,
+        uint256 leverage
     );
 
     /**
@@ -130,9 +138,10 @@ interface IVirtualAMM {
     /**
      * @dev Get quote for opening a position of given size
      * @param positionSize Size of position to quote (positive for long, negative for short)
+     * @param leverage Desired leverage multiplier (scaled by 1e18)
      * @return quote Quote information including price, impact, and margin requirements
      */
-    function getQuote(int256 positionSize) external view returns (Quote memory quote);
+    function getQuote(int256 positionSize, uint256 leverage) external view returns (Quote memory quote);
 
     /**
      * @dev Get the current net position imbalance
@@ -187,6 +196,32 @@ interface IVirtualAMM {
      */
     function hasAdequateMargin(uint256 positionId) external view returns (bool);
 
+    /**
+     * @dev Get the liquidation price for a position
+     * @param positionId Position identifier
+     * @return Liquidation price for the position
+     */
+    function getLiquidationPrice(uint256 positionId) external view returns (uint256);
+
+    /**
+     * @dev Get maximum leverage available for a position size
+     * @param positionSize Size of position to check
+     * @return Maximum leverage multiplier available
+     */
+    function getMaxLeverage(int256 positionSize) external view returns (uint256);
+
+    /**
+     * @dev Get leverage configuration parameters
+     * @return maxLeverage Maximum leverage allowed
+     * @return minLeverage Minimum leverage (typically 1x)
+     * @return maintenanceRatio Maintenance margin ratio
+     */
+    function getLeverageParameters() external view returns (
+        uint256 maxLeverage,
+        uint256 minLeverage,
+        uint256 maintenanceRatio
+    );
+
     // ============ MUTATIVE FUNCTIONS ============
 
     /**
@@ -194,12 +229,14 @@ interface IVirtualAMM {
      * @param trader Address of the trader
      * @param size Position size (positive for long, negative for short)
      * @param margin Margin amount to post
+     * @param leverage Leverage multiplier (scaled by 1e18, e.g. 5e18 = 5x)
      * @return positionId Unique identifier for the new position
      */
     function openPosition(
         address trader,
         int256 size,
-        uint256 margin
+        uint256 margin,
+        uint256 leverage
     ) external returns (uint256 positionId);
 
     /**
@@ -318,6 +355,18 @@ interface IVirtualAMM {
      */
     function setPaused(bool paused) external;
 
+    /**
+     * @dev Update maximum leverage allowed
+     * @param newMaxLeverage New maximum leverage multiplier
+     */
+    function updateMaxLeverage(uint256 newMaxLeverage) external;
+
+    /**
+     * @dev Update maintenance margin ratio
+     * @param newMaintenanceRatio New maintenance margin ratio
+     */
+    function updateMaintenanceRatio(uint256 newMaintenanceRatio) external;
+
     // ============ ERRORS ============
 
     error InsufficientLiquidity();
@@ -329,4 +378,7 @@ interface IVirtualAMM {
     error AMMPaused();
     error ZeroAmount();
     error MarginBelowMinimum();
+    error InvalidLeverage();
+    error ExceedsMaxLeverage();
+    error BelowMaintenanceMargin();
 }

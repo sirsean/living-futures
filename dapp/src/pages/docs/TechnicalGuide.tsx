@@ -44,11 +44,12 @@ export default function TechnicalGuide() {
           </ul>
         </li>
         
-        <li><strong>Advanced Position Management</strong> 🚧 PENDING
+        <li><strong>Advanced Position Management</strong> ✅ LEVERAGE COMPLETE
           <ul>
-            <li>Multi-position portfolio management</li>
-            <li>Leverage multiplication (2x-10x configurable)</li>
-            <li>Advanced order types and automation</li>
+            <li>✅ <strong>Leverage System:</strong> 1x-10x default (up to 100x max) configurable leverage with margin efficiency</li>
+            <li>✅ <strong>Liquidation Management:</strong> Maintenance margin and liquidation price calculations</li>
+            <li>✅ <strong>Risk Controls:</strong> Leverage validation and position health monitoring</li>
+            <li>🚧 <strong>Future:</strong> Multi-position portfolio management and advanced order types</li>
           </ul>
         </li>
         
@@ -309,13 +310,132 @@ export default function TechnicalGuide() {
             <li>✅ Integrate position lifecycle management</li>
             <li>✅ Add LP token system with fee distribution</li>
             <li>✅ Implement governance controls and parameter validation</li>
-            <li>✅ Comprehensive test suite (31 passing tests)</li>
+            <li>✅ Full leverage system (1x-10x) with PnL amplification</li>
+            <li>✅ Liquidation price calculations and margin adequacy checks</li>
+            <li>✅ Comprehensive test suite (79 passing tests including 20 leverage tests)</li>
           </ul>
         </li>
         
         {/* Continue with all phases... */}
       </ol>
       
+      <h2 id="leverage-system-implementation">Leverage System Implementation</h2>
+      
+      <p>The leverage system is fully integrated into the VirtualAMM contract with the following architecture:</p>
+      
+      <h3>Core Components</h3>
+      
+      <ol>
+        <li><strong>Enhanced Position Structure</strong>
+          <ul>
+            <li>Position struct includes leverage multiplier field</li>
+            <li>Backward compatibility with existing position data</li>
+            <li>Event emissions include leverage information</li>
+          </ul>
+        </li>
+        
+        <li><strong>Leverage Validation System</strong>
+          <ul>
+            <li>Configurable leverage bounds (1x minimum, 10x default, 100x absolute maximum)</li>
+            <li>Admin controls for maximum leverage adjustments</li>
+            <li>Input validation on position opening and quote generation</li>
+          </ul>
+        </li>
+        
+        <li><strong>Margin Calculation Engine</strong>
+          <ul>
+            <li>Required margin = (position notional × margin ratio) / leverage</li>
+            <li>Maintenance margin = initial margin × 80% (configurable)</li>
+            <li>Leveraged PnL calculation with amplification</li>
+          </ul>
+        </li>
+        
+        <li><strong>Liquidation Management</strong>
+          <ul>
+            <li>Dynamic liquidation price calculations</li>
+            <li>Long liquidation: entry × (1 - maintenance ratio / leverage)</li>
+            <li>Short liquidation: entry × (1 + maintenance ratio / leverage)</li>
+            <li>Continuous margin adequacy monitoring</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h3>API Changes</h3>
+      
+      <p>The leverage implementation extends existing functions:</p>
+      
+      <ol>
+        <li><strong>Enhanced Functions</strong>
+          <ul>
+            <li><code>openPosition(trader, size, margin, leverage)</code> - now accepts leverage parameter</li>
+            <li><code>getQuote(positionSize, leverage)</code> - leverage-aware quote generation</li>
+            <li><code>getPositionValue(positionId)</code> - returns leverage-amplified PnL</li>
+            <li><code>hasAdequateMargin(positionId)</code> - uses leverage-adjusted thresholds</li>
+          </ul>
+        </li>
+        
+        <li><strong>New Functions</strong>
+          <ul>
+            <li><code>getLiquidationPrice(positionId)</code> - calculates liquidation threshold</li>
+            <li><code>getMaxLeverage(positionSize)</code> - returns maximum available leverage</li>
+            <li><code>getLeverageParameters()</code> - returns current leverage configuration</li>
+            <li><code>updateMaxLeverage(newMaxLeverage)</code> - admin function for leverage limits</li>
+          </ul>
+        </li>
+        
+        <li><strong>Backward Compatibility</strong>
+          <ul>
+            <li><code>getQuote(positionSize)</code> - defaults to 1x leverage</li>
+            <li>Existing position management functions work unchanged</li>
+            <li>Legacy integrations continue to function</li>
+          </ul>
+        </li>
+      </ol>
+      
+      <h3>Mathematical Implementation</h3>
+      
+      <pre><code>{`// Core leverage calculations
+requiredMargin = (positionValue * minMarginRatio) / leverage
+leveragedPnL = basePnL * leverage
+maintenanceMargin = requiredMargin * maintenanceRatio
+
+// Liquidation price calculations
+longLiquidationPrice = entryPrice * (1 - (maintenanceRatio * minMarginRatio) / leverage)
+shortLiquidationPrice = entryPrice * (1 + (maintenanceRatio * minMarginRatio) / leverage)
+
+// Margin adequacy check
+equity = margin + leveragedPnL
+isAdequate = equity >= maintenanceMargin`}</code></pre>
+      
+      <h3>Security Features</h3>
+      
+      <ol>
+        <li><strong>Parameter Validation</strong>
+          <ul>
+            <li>Leverage bounds enforcement (MIN_LEVERAGE to maxLeverage)</li>
+            <li>Maintenance ratio bounds (50% to 100%)</li>
+            <li>Admin-only governance controls</li>
+          </ul>
+        </li>
+        
+        <li><strong>Risk Management</strong>
+          <ul>
+            <li>Automatic liquidation triggers</li>
+            <li>Position health monitoring</li>
+            <li>Dynamic leverage limits based on market conditions</li>
+          </ul>
+        </li>
+        
+        <li><strong>Testing Coverage</strong>
+          <ul>
+            <li>20 leverage-specific test cases</li>
+            <li>Edge case coverage for maximum/minimum leverage</li>
+            <li>Integration testing with existing AMM functionality</li>
+            <li>Position lifecycle testing with leverage</li>
+          </ul>
+        </li>
+      </ol>
+
       <h2 id="technical-specifications">Technical Specifications</h2>
       
       <h3>Blockchain</h3>
@@ -353,12 +473,13 @@ export default function TechnicalGuide() {
           <ul>
             <li>User connects wallet</li>
             <li>Selects team and position type (long/short)</li>
-            <li>Enters size and margin</li>
+            <li>Enters size, margin, and leverage multiplier (1x-10x default, up to 100x max)</li>
+            <li>System calculates required margin based on leverage</li>
             <li>Approves token spend</li>
-            <li>Submits transaction</li>
-            <li>Position is opened with price impact calculated</li>
-            <li>Daily funding applies based on price vs. win%</li>
-            <li>User can close or be liquidated if underwater</li>
+            <li>Submits transaction with leverage parameter</li>
+            <li>Position is opened with leverage-adjusted price impact</li>
+            <li>Daily funding applies (amplified by leverage)</li>
+            <li>User can close or be liquidated if equity below maintenance margin</li>
           </ul>
         </li>
         
