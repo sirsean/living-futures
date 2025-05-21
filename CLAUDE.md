@@ -59,3 +59,10 @@ All npm commands now work normally:
 - LP system with team-specific and shared pools
 - Insurance fund with staking
 - Upgradeability through proxy pattern
+
+## Project Tracking
+
+**IMPORTANT**: Keep project tracking files updated as development progresses:
+- **ROADMAP.md**: Update milestone completion status and phase progress
+- **TASKS.md**: Mark completed tasks, update sprint progress, and add new tasks as needed
+- Review and update these files weekly during active development
