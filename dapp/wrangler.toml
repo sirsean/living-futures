@@ -5,7 +5,7 @@ compatibility_date = "2025-01-01"
 
 # Build configuration
 [build]
-command = "npm run build"
+command = "npm install && npm run build"
 build_output_directory = "dist"
 
 # Environment variables (non-sensitive)
