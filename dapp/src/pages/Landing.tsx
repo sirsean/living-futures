@@ -4,31 +4,49 @@ export default function Landing() {
   return (
     <div className="bg-field-green">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary-light to-primary-dark text-white overflow-hidden">
-        {/* Decorative baseball diamond pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-45 w-96 h-96 border-8 border-white"></div>
+      <section className="relative bg-primary text-white overflow-hidden">
+        {/* Clean horizontal lines pattern inspired by logo */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 flex flex-col justify-center space-y-6">
+            {/* Left side lines */}
+            <div className="absolute left-8 top-1/2 transform -translate-y-1/2 space-y-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="w-24 h-px bg-white" style={{transform: `translateY(${(i-3.5) * 20}px)`}}></div>
+              ))}
+            </div>
+            {/* Right side lines */}
+            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 space-y-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="w-24 h-px bg-white" style={{transform: `translateY(${(i-3.5) * 20}px)`}}></div>
+              ))}
+            </div>
+          </div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
-          <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-6">
-            Living Futures
-          </h1>
-          <div className="inline-block">
-            <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
+          <div className="flex flex-col items-center justify-center space-y-8 mb-8">
+            <div className="bg-primary-dark p-8 rounded-2xl shadow-2xl">
+              <img src="/android-chrome-512x512.png" alt="Living Futures" className="w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-2xl" />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-display font-extrabold">
+              Living Futures
+            </h1>
+          </div>
+          <div className="space-y-6">
+            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
               Where Baseball Tradition Meets Financial Innovation
             </p>
-            <div className="w-32 h-1 bg-secondary mx-auto mb-8"></div>
+            <div className="w-24 h-1 bg-secondary mx-auto"></div>
           </div>
-          <p className="text-lg text-white/80 mb-12 max-w-2xl mx-auto">
+          <p className="text-lg text-white/80 mt-8 mb-12 max-w-2xl mx-auto">
             Trade season-long derivative contracts on team win percentages with daily funding, 
             sophisticated liquidity provision, and decentralized price discovery.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/docs/whitepaper" className="bg-white text-primary px-8 py-4 rounded-full font-bold hover:bg-secondary hover:text-white transition-all shadow-retro">
+            <Link to="/docs/whitepaper" className="bg-secondary text-primary px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-primary transition-all shadow-lg">
               Read Whitepaper
             </Link>
-            <Link to="/docs/technical" className="border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-primary transition-all">
+            <Link to="/docs/technical" className="border-2 border-secondary text-secondary px-8 py-4 rounded-lg font-bold hover:bg-secondary hover:text-primary transition-all">
               Technical Documentation
             </Link>
           </div>

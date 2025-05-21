@@ -7,18 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Baseball-inspired greens and earth tones
-        'primary': '#1e5631',     // Deep forest green (like outfield grass)
-        'primary-light': '#2d7a48',
-        'primary-dark': '#153d23',
+        // Baseball logo inspired - navy and gold
+        'primary': '#2c3e50',     // Deep navy (logo background)
+        'primary-light': '#34495e',
+        'primary-dark': '#1a252f',
         
-        // Warm nostalgic tones
-        'secondary': '#d4a574',   // Baseball glove leather brown
-        'accent': '#e74c3c',      // Stadium red (like foul lines)
+        // Logo accent colors
+        'secondary': '#f1c40f',   // Bright gold/yellow (logo accent line)
+        'accent': '#c0392b',      // Baseball red (stitching color)
         
-        // Modern tech overlay
-        'tech-blue': '#3498db',   // Bright tech blue
-        'tech-purple': '#6c5ce7', // Futuristic purple
+        // Modern overlay colors
+        'tech-blue': '#3498db',   // Keep tech blue
+        'tech-purple': '#6c5ce7', // Keep purple
         
         // Base colors
         'dark': '#1a1a1a',
@@ -37,8 +37,8 @@ export default {
         },
         
         // Backgrounds
-        'field-green': '#f0f7f4',  // Light baseball field green
-        'infield-brown': '#fdf8f3', // Light infield dirt
+        'field-green': '#f8fafe',  // Light navy-tinted background
+        'infield-brown': '#fefdfb', // Light warm background
       },
       boxShadow: {
         'retro': '4px 4px 0px 0px rgba(0,0,0,0.1)',
