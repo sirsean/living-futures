@@ -11,7 +11,7 @@
     "dev": "cd dapp && npm run dev",
     "build": "npm run build:contracts && npm run build:dapp",
     "build:contracts": "cd contracts && npm run build",
-    "build:dapp": "cd dapp && npm run build",
+    "build:dapp": "cd dapp && npm install && npm run build",
     "test": "npm run test:contracts && npm run test:scripts",
     "test:contracts": "cd contracts && npm run test",
     "test:scripts": "cd scripts && npm run test",
