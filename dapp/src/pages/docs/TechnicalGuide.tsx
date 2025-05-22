@@ -478,8 +478,8 @@ isAdequate = equity >= maintenanceMargin`}</code></pre>
             <li>Approves token spend</li>
             <li>Submits transaction with leverage parameter</li>
             <li>Position is opened with leverage-adjusted price impact</li>
-            <li>Daily funding applies (amplified by leverage)</li>
-            <li>User can close or be liquidated if equity below maintenance margin</li>
+            <li>Daily funding applies (amplified by leverage, if sufficient margin)</li>
+            <li>User can close, be liquidated for maintenance margin, or force-closed for funding failure</li>
           </ul>
         </li>
         
@@ -525,15 +525,18 @@ isAdequate = equity >= maintenanceMargin`}</code></pre>
           <ul>
             <li>Calculate funding based on price vs. win%</li>
             <li>Process payments between longs and shorts</li>
-            <li>Update user positions</li>
+            <li>Force-close positions unable to pay funding obligations</li>
+            <li>Update remaining positions and LP pool balances</li>
           </ul>
         </li>
         
         <li><strong>Liquidation Monitoring</strong> (Every 5 minutes)
           <ul>
             <li>Check all positions against maintenance margin</li>
+            <li>Monitor position funding payment capabilities</li>
             <li>Flag positions for liquidation</li>
             <li>Execute liquidations for underwater positions</li>
+            <li>Handle funding-related position closures</li>
           </ul>
         </li>
         

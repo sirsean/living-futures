@@ -132,7 +132,7 @@ End of Season (Final .595):
         <li><strong>Flexible exit strategies:</strong> Close positions at any time during the season</li>
         <li><strong>Daily funding:</strong> Receive or pay funding based on price-oracle divergence</li>
         <li><strong>Settlement options:</strong> Hold until automatic settlement at season end</li>
-        <li><strong>Risk management:</strong> Automatic liquidation when equity falls below maintenance margin</li>
+        <li><strong>Risk management:</strong> Automatic liquidation when equity falls below maintenance margin or unable to pay funding</li>
       </ul>
       
       <h4>Leverage System</h4>
@@ -266,12 +266,24 @@ where:
       
       <h3 id="liquidation-process">Liquidation Process</h3>
       
+      <p>The system implements two types of liquidation to ensure system solvency:</p>
+      
+      <h4>Maintenance Margin Liquidation</h4>
       <ul>
         <li><strong>Threshold:</strong> Maintenance margin set at 80% of initial margin requirement</li>
         <li><strong>Leverage Consideration:</strong> Liquidation thresholds adjust based on leverage multiplier</li>
         <li><strong>Process:</strong> Positions liquidated when equity below maintenance margin</li>
         <li><strong>Incentives:</strong> Liquidators receive fee for successful liquidations</li>
         <li><strong>Shortfall Handling:</strong> Insurance fund covers underwater positions</li>
+      </ul>
+      
+      <h4>Funding Payment Liquidation</h4>
+      <ul>
+        <li><strong>Trigger:</strong> Position cannot pay required daily funding amount</li>
+        <li><strong>Process:</strong> Immediate force closure to prevent debt accumulation</li>
+        <li><strong>Timing:</strong> Occurs during daily funding execution (2:00 AM ET)</li>
+        <li><strong>Settlement:</strong> Standard liquidation process with PnL calculation and fee deduction</li>
+        <li><strong>Protection:</strong> Prevents bad debt by closing positions before insolvency</li>
       </ul>
       
       <h3 id="circuit-breakers">Circuit Breakers</h3>

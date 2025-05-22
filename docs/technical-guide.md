@@ -252,8 +252,8 @@ The system will be built in phases with clear milestones:
    - Approves token spend
    - Submits transaction
    - Position is opened with price impact calculated
-   - Daily funding applies based on price vs. win%
-   - User can close or be liquidated if underwater
+   - Daily funding applies based on price vs. win% (if sufficient margin)
+   - User can close, be liquidated for maintenance margin, or force-closed for funding failure
 
 2. **Liquidity Provision Flow**
    - User selects team-specific or shared liquidity
@@ -282,12 +282,14 @@ These critical operations will run as scheduled Cloudflare Workers:
 2. **Funding Payments** (Daily at 2:00 AM ET)
    - Calculate funding based on price vs. win%
    - Process payments between longs and shorts
-   - Update user positions
+   - Force-close positions unable to pay funding obligations
+   - Update remaining positions and LP pool balances
 
 3. **Liquidation Monitoring** (Every 5 minutes)
    - Check all positions against maintenance margin
-   - Flag positions for liquidation
+   - Monitor position funding payment capabilities
    - Execute liquidations for underwater positions
+   - Handle funding-related position closures
 
 4. **LP Reward Distribution** (Daily)
    - Calculate fees earned by LPs

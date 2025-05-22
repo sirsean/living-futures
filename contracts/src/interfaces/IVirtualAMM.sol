@@ -127,6 +127,20 @@ interface IVirtualAMM {
         uint256 newValue
     );
 
+    /**
+     * @dev Emitted when funding payment is applied to a position
+     * @param positionId Position identifier
+     * @param trader Position holder address
+     * @param fundingAmount Funding amount (positive = received, negative = paid)
+     * @param newMargin Position margin after funding
+     */
+    event PositionFundingApplied(
+        uint256 indexed positionId,
+        address indexed trader,
+        int256 fundingAmount,
+        uint256 newMargin
+    );
+
     // ============ VIEW FUNCTIONS ============
 
     /**
@@ -190,6 +204,18 @@ interface IVirtualAMM {
     );
 
     /**
+     * @dev Get the team identifier for this AMM
+     * @return Team identifier string (e.g., "NYY", "BOS")
+     */
+    function getTeamId() external view returns (string memory);
+
+    /**
+     * @dev Get all open position IDs for funding execution
+     * @return positionIds Array of all open position IDs
+     */
+    function getAllOpenPositions() external view returns (uint256[] memory positionIds);
+
+    /**
      * @dev Check if a position meets margin requirements
      * @param positionId Position identifier
      * @return Whether position has sufficient margin
@@ -235,6 +261,12 @@ interface IVirtualAMM {
      * @return count Number of positions owned by the trader
      */
     function getTraderPositionCount(address trader) external view returns (uint256 count);
+
+    /**
+     * @dev Get the collateral token address used by this AMM
+     * @return Address of the collateral token contract
+     */
+    function getCollateralToken() external view returns (address);
 
     // ============ MUTATIVE FUNCTIONS ============
 
@@ -293,6 +325,27 @@ interface IVirtualAMM {
      * @return totalFunding Total funding amount transferred
      */
     function applyFunding() external returns (int256 totalFunding);
+
+    /**
+     * @dev Apply funding payment to a specific position
+     * @dev Called by FundingManager during funding execution
+     * @param positionId Position identifier
+     * @param fundingAmount Funding amount (positive = position receives, negative = position pays)
+     */
+    function applyPositionFunding(uint256 positionId, int256 fundingAmount) external;
+
+    /**
+     * @dev Get LP pool funding capacity
+     * @return Current LP pool value for funding calculations
+     */
+    function getLPPoolValue() external view returns (uint256);
+
+    /**
+     * @dev Transfer funding to/from LP pool
+     * @param amount Amount to transfer (positive = to LP, negative = from LP)
+     * @return Actual amount transferred (may be capped)
+     */
+    function transferLPFunding(int256 amount) external returns (int256);
 
     /**
      * @dev Liquidate a position that doesn't meet margin requirements
@@ -395,4 +448,6 @@ interface IVirtualAMM {
     error InvalidLeverage();
     error ExceedsMaxLeverage();
     error BelowMaintenanceMargin();
+    error FundingCapExceeded();
+    error InsufficientLPFunds();
 }

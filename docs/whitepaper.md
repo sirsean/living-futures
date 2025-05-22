@@ -97,9 +97,10 @@ End of Season (Final .595):
 Traders can:
 - Open long/short positions with leverage
 - Close positions at any time
-- Receive/pay daily funding
+- Receive/pay daily funding (if sufficient margin available)
 - Hold until settlement
 - Get automatically liquidated if margin falls below maintenance level
+- **Funding-related closure**: Positions force-closed if unable to pay daily funding obligations
 
 ### Key Benefits
 
@@ -193,10 +194,17 @@ Meta-liquidity pool for ecosystem-wide exposure:
 
 ### Liquidation Process
 
-- **Threshold:** Maintenance margin requirement based on position size
-- **Process:** Positions liquidated when equity below maintenance
+**Maintenance Margin Liquidation:**
+- **Threshold:** Maintenance margin requirement based on position size  
+- **Process:** Positions liquidated when equity below maintenance margin
 - **Incentives:** Liquidators receive fee for successful liquidations
 - **Shortfall Handling:** Insurance fund covers underwater positions
+
+**Funding Payment Liquidation:**
+- **Trigger:** Position cannot pay required daily funding amount
+- **Process:** Immediate force closure to prevent system debt accumulation
+- **Settlement:** Standard liquidation process (PnL calculation, fee deduction)
+- **Risk Management:** Prevents bad debt by closing positions before insolvency
 
 ### Circuit Breakers
 

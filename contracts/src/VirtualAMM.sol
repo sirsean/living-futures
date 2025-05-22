@@ -72,6 +72,7 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     // Position tracking
     mapping(uint256 => Position) public positions;
     mapping(address => uint256[]) public traderPositions;  // trader => array of position IDs
+    uint256[] public openPositions;  // array of all open position IDs
     uint256 public nextPositionId = 1;
     int256 public netPositionImbalance;  // longPositions - shortPositions
     uint256 public totalLiquidity;
@@ -258,6 +259,20 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     }
 
     /**
+     * @dev Get the team identifier for this AMM
+     */
+    function getTeamId() external view returns (string memory) {
+        return teamId;
+    }
+
+    /**
+     * @dev Get all open position IDs for funding execution
+     */
+    function getAllOpenPositions() external view returns (uint256[] memory positionIds) {
+        return openPositions;
+    }
+
+    /**
      * @dev Check if position has adequate margin
      */
     function hasAdequateMargin(uint256 positionId) external view returns (bool) {
@@ -325,8 +340,9 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         netPositionImbalance += size;
         accumulatedFees += quote.fees;
         
-        // Add position to trader's position list
+        // Add position to trader's position list and global open positions
         traderPositions[trader].push(positionId);
+        openPositions.push(positionId);
         
         emit PositionOpened(positionId, trader, size, quote.price, margin, leverage);
     }
@@ -355,8 +371,9 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
         position.isOpen = false;
         accumulatedFees += closingFees;
         
-        // Remove position from trader's position list
+        // Remove position from trader's position list and global open positions
         _removeTraderPosition(position.trader, positionId);
+        _removeFromOpenPositions(positionId);
         
         // Calculate final payout
         int256 finalPayout = int256(position.margin) + pnl - int256(closingFees);
@@ -479,6 +496,20 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
                 // Move the last element to this position and pop
                 traderPositionArray[i] = traderPositionArray[length - 1];
                 traderPositionArray.pop();
+                break;
+            }
+        }
+    }
+
+    function _removeFromOpenPositions(uint256 positionId) internal {
+        uint256 length = openPositions.length;
+        
+        // Find the position in the array and remove it
+        for (uint256 i = 0; i < length; i++) {
+            if (openPositions[i] == positionId) {
+                // Move the last element to this position and pop
+                openPositions[i] = openPositions[length - 1];
+                openPositions.pop();
                 break;
             }
         }
@@ -777,15 +808,140 @@ contract VirtualAMM is IVirtualAMM, AccessControl, Pausable, ReentrancyGuard {
     // ============ FUNDING AND LIQUIDATION ============
 
     function applyFunding() external onlyRole(FUNDING_ROLE) returns (int256 totalFunding) {
-        // Implementation for funding mechanism
-        // This will be called by the funding service
-        revert("Not implemented yet");
+        // This function is deprecated in favor of individual position funding
+        // Kept for interface compatibility
+        return 0;
+    }
+
+    function applyPositionFunding(uint256 positionId, int256 fundingAmount) external onlyRole(FUNDING_ROLE) {
+        Position storage position = positions[positionId];
+        require(position.isOpen, "PositionNotFound");
+        
+        if (fundingAmount > 0) {
+            // Position receives funding - increase margin
+            position.margin += uint256(fundingAmount);
+        } else if (fundingAmount < 0) {
+            // Position pays funding - decrease margin
+            uint256 debitAmount = uint256(-fundingAmount);
+            if (debitAmount >= position.margin) {
+                // Insufficient margin - close position
+                _forceClosePosition(positionId);
+                return;
+            }
+            position.margin -= debitAmount;
+        }
+        
+        emit PositionFundingApplied(positionId, position.trader, fundingAmount, position.margin);
+    }
+
+    function getLPPoolValue() external view returns (uint256) {
+        return totalLiquidity;
+    }
+
+    function transferLPFunding(int256 amount) external onlyRole(FUNDING_ROLE) returns (int256) {
+        if (amount > 0) {
+            // LP receives funding
+            uint256 transferAmount = uint256(amount);
+            totalLiquidity += transferAmount;
+            return amount;
+        } else if (amount < 0) {
+            // LP pays funding
+            uint256 payAmount = uint256(-amount);
+            if (payAmount > totalLiquidity) {
+                revert InsufficientLPFunds();
+            }
+            totalLiquidity -= payAmount;
+            return amount;
+        }
+        
+        return 0;
     }
 
     function liquidatePosition(uint256 positionId) external onlyRole(LIQUIDATOR_ROLE) returns (uint256 liquidationValue) {
         // Implementation for liquidation
         // This will be called by the liquidation engine
         revert("Not implemented yet");
+    }
+
+    // ============ INTERNAL FUNDING FUNCTIONS ============
+
+    /**
+     * @dev Force close a position during funding when margin is insufficient
+     * @param positionId Position identifier to close
+     */
+    function _forceClosePosition(uint256 positionId) internal {
+        Position storage position = positions[positionId];
+        require(position.isOpen, "PositionNotFound");
+        
+        // Calculate PnL and fees (no closing fees for forced closure)
+        int256 pnl = this.getPositionValue(positionId);
+        
+        // Update state
+        netPositionImbalance -= position.size;
+        position.isOpen = false;
+        
+        // Remove position from trader's position list and global open positions
+        _removeTraderPosition(position.trader, positionId);
+        _removeFromOpenPositions(positionId);
+        
+        // Calculate final payout (margin may be zero due to funding debit)
+        int256 finalPayout = int256(position.margin) + pnl;
+        
+        if (finalPayout > 0) {
+            collateralToken.safeTransfer(position.trader, uint256(finalPayout));
+        }
+        
+        emit PositionClosed(positionId, position.trader, getCurrentPrice(), pnl, 0);
+    }
+
+    // ============ ADMIN FUNCTIONS FOR TESTING ============
+    
+    /**
+     * @dev Set position margin for testing purposes
+     * @param positionId Position identifier
+     * @param newMargin New margin amount
+     */
+    function setPositionMargin(uint256 positionId, uint256 newMargin) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        Position storage position = positions[positionId];
+        require(position.isOpen, "PositionNotFound");
+        position.margin = newMargin;
+    }
+    
+    /**
+     * @dev Force close a position (external wrapper for testing)
+     * @param positionId Position identifier to close
+     */
+    function forceClosePosition(uint256 positionId) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _forceClosePosition(positionId);
+    }
+    
+    /**
+     * @dev Get collateral token address
+     * @return Address of the collateral token
+     */
+    function getCollateralToken() external view returns (address) {
+        return address(collateralToken);
+    }
+    
+    /**
+     * @dev Increase position size (simplified for testing)
+     * @param positionId Position identifier
+     * @param additionalMargin Additional margin to add
+     */
+    function increasePosition(uint256 positionId, uint256 additionalMargin) external nonReentrant whenNotPaused {
+        Position storage position = positions[positionId];
+        require(position.isOpen, "PositionNotFound");
+        require(position.trader == msg.sender, "UnauthorizedCaller");
+        
+        // Check for excessive debt (simplified check)
+        // In a real implementation, this would check funding debt from FundingManager
+        if (position.margin < additionalMargin / 10) {
+            revert("ExcessiveDebt");
+        }
+        
+        // Transfer additional margin
+        collateralToken.safeTransferFrom(msg.sender, address(this), additionalMargin);
+        position.margin += additionalMargin;
     }
 
     // Additional functions for modifyPosition and other features would be implemented here
